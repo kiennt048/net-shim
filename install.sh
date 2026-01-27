@@ -1,43 +1,30 @@
 #!/bin/sh
-
-# Dừng script ngay nếu có lỗi
 set -e
 
-# CẤU HÌNH
+APP_NAME="net-shim"
+
 GITHUB_USER="kiennt048"
-GITHUB_REPO="net-shim"
+REPO="net-shim"
 BRANCH="main"
-TOKEN="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"
 
-BASE_URL="https://raw.githubusercontent.com/$GITHUB_USER/$GITHUB_REPO/$BRANCH"
-HEADER="Authorization: token $TOKEN"
+BIN_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${REPO}/${BRANCH}/net-shim"
+RC_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${REPO}/${BRANCH}/net-shim.rc"
 
-echo ">>> [1/4] Dang tai file tu GitHub..."
-# Tải Binary
-curl -H "$HEADER" -sSL -o /usr/local/sbin/net-shim "$BASE_URL/net-shim"
-# Tải Service Script
-curl -H "$HEADER" -sSL -o /usr/local/etc/rc.d/net-shim "$BASE_URL/net-shim.rc"
+BIN_PATH="/usr/local/sbin/${APP_NAME}"
+RC_PATH="/usr/local/etc/rc.d/${APP_NAME}"
+RC_CONF="/etc/rc.conf.local"
 
-echo ">>> [2/4] Phan quyen thuc thi..."
-chmod +x /usr/local/sbin/net-shim
-chmod +x /usr/local/etc/rc.d/net-shim
+echo "[+] Installing ${APP_NAME}"
 
-echo ">>> [3/4] Kich hoat dich vu (System Enable)..."
-# Ghi vao rc.conf.local de tu chay khi boot
-sysrc -f /etc/rc.conf.local net_shim_enable="YES"
-# Lenh xac nhan kich hoat tren pfSense
-service net-shim enable
+fetch -o "${BIN_PATH}" "${BIN_URL}"
+fetch -o "${RC_PATH}" "${RC_URL}"
 
-echo ">>> [4/4] Khoi chay ung dung (System Start/Restart)..."
-# Restart de cap nhat binary moi neu dang chay, neu chua chay thi se start
-service net-shim restart || service net-shim start
+chmod +x "${BIN_PATH}"
+chmod +x "${RC_PATH}"
 
-echo ">>> KIEM TRA KET QUA:"
-if pgrep -f "net-shim" > /dev/null; then
-    echo "THANH CONG: net-shim dang chay."
-    pgrep -lf "net-shim"
-else
-    echo "CANH BAO: net-shim chua chay. Hay kiem tra file log hoac chay truc tiep de debug."
-fi
+grep -q '^net_shim_enable="YES"' "${RC_CONF}" 2>/dev/null || \
+  echo 'net_shim_enable="YES"' >> "${RC_CONF}"
 
-echo ">>> TRIEN KHAI HOAN TAT!"
+service "${APP_NAME}" restart || service "${APP_NAME}" start
+
+echo "[✓] ${APP_NAME} installed"
