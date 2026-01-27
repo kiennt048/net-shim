@@ -6,23 +6,25 @@ GITHUB_REPO="net-shim"
 BRANCH="main"
 TOKEN="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"
 
-# Cấu trúc URL có nhúng Token để bypass lỗi --header
-BASE_URL="https://$TOKEN@raw.githubusercontent.com/$GITHUB_USER/$GITHUB_REPO/$BRANCH"
+BASE_URL="https://raw.githubusercontent.com/$GITHUB_USER/$GITHUB_REPO/$BRANCH"
+HEADER="Authorization: token $TOKEN"
 
-echo ">>> Dang tai file tu GitHub cho pfSense 2.8.1..."
+echo ">>> [1/4] Dang tai file tu GitHub qua curl..."
 
 # Tai Binary
-fetch -q -o /usr/local/sbin/net-shim "$BASE_URL/net-shim"
+curl -H "$HEADER" -sSfL -o /usr/local/sbin/net-shim "$BASE_URL/net-shim"
 
 # Tai Service Script
-fetch -q -o /usr/local/etc/rc.d/net-shim "$BASE_URL/net-shim.rc"
+curl -H "$HEADER" -sSfL -o /usr/local/etc/rc.d/net-shim "$BASE_URL/net-shim.rc"
 
-# Phan quyen
+echo ">>> [2/4] Phan quyen thuc thi..."
 chmod +x /usr/local/sbin/net-shim
 chmod +x /usr/local/etc/rc.d/net-shim
 
-# Kich hoat va Chay (Dùng sysrc để đảm bảo an toàn cho rc.conf.local)
+echo ">>> [3/4] Dang ky service..."
 sysrc -f /etc/rc.conf.local net_shim_enable="YES"
+
+echo ">>> [4/4] Khoi chay ung dung..."
 service net-shim restart || service net-shim start
 
-echo ">>> Hoan tat trien khai net-shim!"
+echo ">>> TRIEN KHAI HOAN TAT!"
