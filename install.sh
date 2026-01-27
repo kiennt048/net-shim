@@ -1,30 +1,69 @@
 #!/bin/sh
 set -e
 
-APP_NAME="net-shim"
+APP_NAME="netshim"
+BIN_PATH="/usr/local/sbin/net-shim"
+RC_PATH="/usr/local/etc/rc.d/netshim"
+LOG_PATH="/var/log/netshim.log"
 
-GITHUB_USER="kiennt048"
-REPO="net-shim"
-BRANCH="main"
+echo "==> Installing ${APP_NAME}..."
 
-BIN_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${REPO}/${BRANCH}/net-shim"
-RC_URL="https://raw.githubusercontent.com/${GITHUB_USER}/${REPO}/${BRANCH}/net-shim.rc"
+# 1. Copy binary (giả sử binary đã build sẵn trong repo)
+echo "==> Installing binary..."
+install -m 755 net-shim "${BIN_PATH}"
 
-BIN_PATH="/usr/local/sbin/${APP_NAME}"
-RC_PATH="/usr/local/etc/rc.d/${APP_NAME}"
-RC_CONF="/etc/rc.conf.local"
+# 2. Create rc.d service
+echo "==> Creating service..."
+cat << 'EOF' > "${RC_PATH}"
+#!/bin/sh
 
-echo "[+] Installing ${APP_NAME}"
+# PROVIDE: netshim
+# REQUIRE: LOGIN
+# KEYWORD: shutdown
 
-fetch -o "${BIN_PATH}" "${BIN_URL}"
-fetch -o "${RC_PATH}" "${RC_URL}"
+. /etc/rc.subr
 
-chmod +x "${BIN_PATH}"
+name="netshim"
+rcvar="netshim_enable"
+
+command="/usr/local/sbin/net-shim"
+pidfile="/var/run/netshim.pid"
+command_background="yes"
+
+start_cmd="netshim_start"
+stop_cmd="netshim_stop"
+
+netshim_start() {
+    echo "Starting net-shim..."
+    nohup ${command} >> /var/log/netshim.log 2>&1 &
+    echo $! > ${pidfile}
+}
+
+netshim_stop() {
+    if [ -f "${pidfile}" ]; then
+        kill "$(cat ${pidfile})" && rm -f "${pidfile}"
+        echo "net-shim stopped"
+    else
+        echo "net-shim not running"
+    fi
+}
+
+load_rc_config $name
+: ${netshim_enable:="NO"}
+
+run_rc_command "$1"
+EOF
+
 chmod +x "${RC_PATH}"
 
-grep -q '^net_shim_enable="YES"' "${RC_CONF}" 2>/dev/null || \
-  echo 'net_shim_enable="YES"' >> "${RC_CONF}"
+# 3. Enable service
+echo "==> Enabling service..."
+sysrc netshim_enable=YES >/dev/null
 
-service "${APP_NAME}" restart || service "${APP_NAME}" start
+# 4. Start service
+echo "==> Starting service..."
+service netshim restart || service netshim start
 
-echo "[✓] ${APP_NAME} installed"
+echo "==> Install completed successfully"
+echo "==> Logs: ${LOG_PATH}"
+echo "==> Status: service netshim status"
