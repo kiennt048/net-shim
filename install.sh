@@ -1,22 +1,51 @@
 #!/bin/sh
 set -e
 
-APP_NAME="netshim"
-BIN_PATH="/usr/local/sbin/net-shim"
-RC_PATH="/usr/local/etc/rc.d/netshim"
-LOG_PATH="/var/log/netshim.log"
+APP="netshim"
+BIN_SRC="./net-shim"
+BIN_DST="/usr/local/sbin/net-shim"
+RC_FILE="/usr/local/etc/rc.d/netshim"
+LOG="/var/log/netshim.log"
+PID="/var/run/netshim.pid"
 
-echo "==> Installing ${APP_NAME}..."
+echo "==> Installing ${APP}..."
 
-# 1. Copy binary (giả sử binary đã build sẵn trong repo)
-echo "==> Installing binary..."
-install -m 755 net-shim "${BIN_PATH}"
+# --- sanity checks ---
+if [ "$(id -u)" != "0" ]; then
+    echo "ERROR: must run as root"
+    exit 1
+fi
 
-# 2. Create rc.d service
-echo "==> Creating service..."
-cat << 'EOF' > "${RC_PATH}"
+if [ ! -f "${BIN_SRC}" ]; then
+    echo "ERROR: net-shim binary not found"
+    exit 1
+fi
+
+# --- stop service if running ---
+if service netshim onestatus >/dev/null 2>&1; then
+    echo "==> Stopping running service..."
+    service netshim stop || true
+fi
+
+# --- backup existing binary ---
+if [ -f "${BIN_DST}" ]; then
+    echo "==> Backing up existing binary..."
+    cp -f "${BIN_DST}" "${BIN_DST}.bak.$(date +%s)"
+fi
+
+# --- install binary (SAFE) ---
+if [ "$(realpath "${BIN_SRC}")" != "$(realpath "${BIN_DST}" 2>/dev/null || true)" ]; then
+    echo "==> Installing binary..."
+    install -m 755 "${BIN_SRC}" "${BIN_DST}"
+else
+    echo "==> Binary already in place, skipping copy"
+fi
+
+# --- create rc.d service if missing ---
+if [ ! -f "${RC_FILE}" ]; then
+    echo "==> Creating service..."
+    cat << 'EOF' > "${RC_FILE}"
 #!/bin/sh
-
 # PROVIDE: netshim
 # REQUIRE: LOGIN
 # KEYWORD: shutdown
@@ -25,45 +54,39 @@ cat << 'EOF' > "${RC_PATH}"
 
 name="netshim"
 rcvar="netshim_enable"
-
 command="/usr/local/sbin/net-shim"
 pidfile="/var/run/netshim.pid"
 command_background="yes"
 
 start_cmd="netshim_start"
-stop_cmd="netshim_stop"
 
 netshim_start() {
-    echo "Starting net-shim..."
-    nohup ${command} >> /var/log/netshim.log 2>&1 &
-    echo $! > ${pidfile}
-}
-
-netshim_stop() {
-    if [ -f "${pidfile}" ]; then
-        kill "$(cat ${pidfile})" && rm -f "${pidfile}"
-        echo "net-shim stopped"
-    else
-        echo "net-shim not running"
-    fi
+    daemon -p ${pidfile} ${command} >> /var/log/netshim.log 2>&1
 }
 
 load_rc_config $name
 : ${netshim_enable:="NO"}
-
 run_rc_command "$1"
 EOF
+    chmod +x "${RC_FILE}"
+else
+    echo "==> Service already exists, skipping"
+fi
 
-chmod +x "${RC_PATH}"
-
-# 3. Enable service
-echo "==> Enabling service..."
+# --- enable service ---
 sysrc netshim_enable=YES >/dev/null
 
-# 4. Start service
+# --- start service ---
 echo "==> Starting service..."
-service netshim restart || service netshim start
+service netshim start
 
-echo "==> Install completed successfully"
-echo "==> Logs: ${LOG_PATH}"
-echo "==> Status: service netshim status"
+# --- final verification ---
+sleep 1
+if sockstat -4 -l | grep -q ':8080'; then
+    echo "==> net-shim is RUNNING (port 8080)"
+else
+    echo "WARNING: net-shim did not bind to port 8080"
+    echo "Check logs: ${LOG}"
+fi
+
+echo "==> Install finished"
