@@ -1,0 +1,18 @@
+#!/bin/sh
+
+# PROVIDE: net_shim
+# REQUIRE: NETWORKING
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="net_shim"
+rcvar="net_shim_enable"
+
+load_rc_config $name
+: ${net_shim_enable:="NO"}
+
+pidfile="/var/run/${name}.pid"
+procname="/usr/local/sbin/net-shim"
+command="/usr/sbin/daemon"
+command_args="-c -f -r -P ${pidfile} ${procname}"
