@@ -1,5 +1,5 @@
 #!/bin/sh
-set -e
+set -eu
 
 ### ===== CONFIG =====
 APP="netshim"
@@ -19,7 +19,7 @@ TMPDIR="/tmp/netshim.$$"
 BIN_TMP="${TMPDIR}/net-shim"
 BIN_NEW="${TMPDIR}/net-shim.new"
 BACKUP=""
-FIRST_INSTALL=0
+FIRST_FLAG="/var/db/netshim.first_install"
 
 cleanup() { rm -rf "${TMPDIR}"; }
 
@@ -110,14 +110,11 @@ if service netshim onestatus >/dev/null 2>&1; then
     sleep 2
 fi
 
-# Backup existing binary (or mark as first install)
+# Backup existing binary
 if [ -f "${BIN_DST}" ]; then
     BACKUP="${BIN_DST}.bak.$(date +%s)"
     echo "==> Backing up existing binary to ${BACKUP}"
     cp -f "${BIN_DST}" "${BACKUP}"
-else
-    FIRST_INSTALL=1
-    echo "==> First installation detected"
 fi
 
 # Install binary (atomic)
@@ -200,10 +197,13 @@ if [ "${HEALTH_OK}" -ne 1 ]; then
 fi
 
 # First install: restore default config and reboot (single reboot)
-if [ "${FIRST_INSTALL}" -eq 1 ]; then
+if [ ! -f "${FIRST_FLAG}" ]; then
+    touch "${FIRST_FLAG}"
+    echo "==> First installation detected"
     echo "==> Restoring default configuration..."
     service netshim stop 2>/dev/null || true
-    sleep 1
+    pkill -f /usr/local/sbin/net-shim || true
+    sleep 2
 
     if ${BIN_DST} --init >> "${LOG}" 2>&1; then
         echo ""
@@ -226,9 +226,12 @@ if [ "${FIRST_INSTALL}" -eq 1 ]; then
         done
         echo ""
         echo "==> Rebooting now..."
-        cleanup
-        /sbin/shutdown -r now
-        exit 0
+        # Kill daemon, disable trap, force reboot
+        pkill -f /usr/local/sbin/net-shim || true
+        trap - EXIT
+        rm -rf "${TMPDIR}"
+        /sbin/reboot
+        sleep 120
     else
         echo "WARNING: Default config restore failed. Check ${LOG}"
         echo "==> Continuing with existing configuration..."
