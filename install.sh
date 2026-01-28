@@ -137,7 +137,8 @@ if [ ! -f "${RC_FILE}" ]; then
 name="netshim"
 rcvar="netshim_enable"
 command="/usr/local/sbin/net-shim"
-pidfile="/var/run/netshim.pid"
+pidfile="/var/run/${name}.pid"
+command_args=""
 
 start_cmd="netshim_start"
 stop_cmd="netshim_stop"
@@ -145,19 +146,22 @@ status_cmd="netshim_status"
 
 netshim_start() {
     echo "Starting ${name}..."
-    /usr/sbin/daemon -p ${pidfile} -o /var/log/netshim.log ${command}
+    /usr/sbin/daemon -f -P ${pidfile} -o /var/log/netshim.log -t ${name} ${command}
 }
 
 netshim_stop() {
     if [ -f ${pidfile} ]; then
         echo "Stopping ${name}..."
-        kill $(cat ${pidfile}) 2>/dev/null
+        kill "$(cat ${pidfile})" 2>/dev/null
         rm -f ${pidfile}
+    else
+        # Fallback: kill by process name
+        pkill -f ${command} 2>/dev/null
     fi
 }
 
 netshim_status() {
-    if [ -f ${pidfile} ] && kill -0 $(cat ${pidfile}) 2>/dev/null; then
+    if [ -f ${pidfile} ] && kill -0 "$(cat ${pidfile})" 2>/dev/null; then
         echo "${name} is running as pid $(cat ${pidfile})"
     else
         echo "${name} is not running"
