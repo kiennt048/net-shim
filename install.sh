@@ -3,7 +3,7 @@ set -eu
 
 ### ===== CONFIG =====
 APP="netshim"
-REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/kientest"
+REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/main"
 BIN_URL="${REPO_BASE}/net-shim"
 BIN_DST="/usr/local/sbin/net-shim"
 RC_FILE="/usr/local/etc/rc.d/netshim"
