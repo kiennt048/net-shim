@@ -56,6 +56,18 @@ echo ""
     [ "$answer" = "y" ] || [ "$answer" = "Y" ] || exit 1
 }
 
+# Detect existing installation and clean up for fresh install
+if [ -f "${BIN_DST}" ] || [ -f "${FIRST_FLAG}" ] || [ -f "${RC_FILE}" ]; then
+    echo "==> Existing installation detected, removing..."
+    service netshim stop 2>/dev/null || true
+    pkill -f /usr/local/sbin/net-shim 2>/dev/null || true
+    sleep 1
+    rm -f "${BIN_DST}" "${RC_FILE}" "${FIRST_FLAG}" /var/run/netshim.pid
+    rm -f "${BIN_DST}".bak.* 2>/dev/null
+    sysrc -x netshim_enable 2>/dev/null || true
+    echo "==> Old installation removed"
+fi
+
 # Install required packages if missing
 install_pkg() {
     _name="$1"
