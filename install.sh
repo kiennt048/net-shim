@@ -3,7 +3,7 @@ set -eu
 
 ### ===== CONFIG =====
 APP="netshim"
-REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/main"
+REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/bn340-HN"
 BIN_URL="${REPO_BASE}/net-shim"
 BIN_DST="/usr/local/sbin/net-shim"
 RC_FILE="/usr/local/etc/rc.d/netshim"
@@ -12,7 +12,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="6a6e19c3904ba1ae577311447c5876ff4b2d305d01415197fb0434d03ae8b82a"
+EXPECTED_SHA256="4ded80852ccfd07d55e25f61ef8957e714187a5a0935aed33a5ef47ea7d812a0"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
