@@ -15,7 +15,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="3beac8e9d75d8317fb470043740163df03d48bea4c6799b4a4bcbcef016c912b"
+EXPECTED_SHA256="0d193865d9cad418dfe5e9fcf76f344e7105492909b7384fe5d4975fe4592a50"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
