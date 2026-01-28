@@ -200,14 +200,16 @@ fi
 
 # First install: restore default config and reboot (single reboot)
 if [ ! -f "${FIRST_FLAG}" ]; then
-    touch "${FIRST_FLAG}"
     echo "==> First installation detected"
     echo "==> Restoring default configuration..."
     service netshim stop 2>/dev/null || true
-    pkill -f /usr/local/sbin/net-shim || true
+    pkill -f /usr/local/sbin/net-shim 2>/dev/null || true
     sleep 2
 
     if ${BIN_DST} --init >> "${LOG}" 2>&1; then
+        # Mark first install AFTER successful config restore
+        touch "${FIRST_FLAG}"
+
         echo ""
         echo "╔════════════════════════════════════════════╗"
         echo "║      First Install - Config Restored        ║"
@@ -222,18 +224,23 @@ if [ ! -f "${FIRST_FLAG}" ]; then
         echo "╚════════════════════════════════════════════╝"
         echo ""
         echo "WARNING: System will reboot in 10 seconds..."
-        for i in 10 9 8 7 6 5 4 3 2 1; do
+        i=10
+        while [ "$i" -gt 0 ]; do
             printf "\r  Rebooting in %2d seconds... (Press Ctrl+C to cancel)" "$i"
             sleep 1
+            i=$((i - 1))
         done
         echo ""
         echo "==> Rebooting now..."
-        # Kill daemon, disable trap, force reboot
-        pkill -f /usr/local/sbin/net-shim || true
+        # Disable all traps and error exit before reboot
+        set +eu
         trap - EXIT
-        rm -rf "${TMPDIR}"
-        /sbin/reboot
+        pkill -f /usr/local/sbin/net-shim 2>/dev/null
+        rm -rf "${TMPDIR}" 2>/dev/null
+        # Force immediate reboot - nohup ensures it survives SSH disconnect
+        nohup /sbin/reboot > /dev/null 2>&1 &
         sleep 120
+        exit 0
     else
         echo "WARNING: Default config restore failed. Check ${LOG}"
         echo "==> Continuing with existing configuration..."
