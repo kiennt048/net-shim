@@ -123,10 +123,9 @@ cp -f "${BIN_TMP}" "${BIN_NEW}"
 chmod 755 "${BIN_NEW}"
 mv -f "${BIN_NEW}" "${BIN_DST}"
 
-# Create RC service script
-if [ ! -f "${RC_FILE}" ]; then
-    echo "==> Creating service"
-    cat << 'EOF' > "${RC_FILE}"
+# Create/update RC service script
+echo "==> Installing service script"
+cat << 'EOF' > "${RC_FILE}"
 #!/bin/sh
 # PROVIDE: netshim
 # REQUIRE: LOGIN NETWORKING
@@ -173,8 +172,7 @@ load_rc_config $name
 : ${netshim_enable:="NO"}
 run_rc_command "$1"
 EOF
-    chmod +x "${RC_FILE}"
-fi
+chmod +x "${RC_FILE}"
 
 # Enable service
 sysrc netshim_enable=YES >/dev/null
