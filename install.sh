@@ -12,7 +12,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="62ec99077586928e09619fead121ed03450f346ce9bc050f0a7710aae6e30485"
+EXPECTED_SHA256="6a6e19c3904ba1ae577311447c5876ff4b2d305d01415197fb0434d03ae8b82a"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
@@ -206,18 +206,28 @@ if [ "${FIRST_INSTALL}" -eq 1 ]; then
     sleep 1
 
     if ${BIN_DST} --init >> "${LOG}" 2>&1; then
-        echo "==> Default config restored, system is rebooting..."
         echo ""
         echo "╔════════════════════════════════════════════╗"
-        echo "║      First Install - Rebooting Now         ║"
+        echo "║      First Install - Config Restored        ║"
         echo "╠════════════════════════════════════════════╣"
         echo "║  Default config restored successfully.     ║"
-        echo "║  System will reboot once to apply changes. ║"
+        echo "║  System will reboot in 10 seconds to       ║"
+        echo "║  apply all changes.                        ║"
+        echo "║                                            ║"
+        echo "║  After reboot:                             ║"
         echo "║  Access: http://<FIREWALL-IP>:8080         ║"
         echo "║  Logs:   /var/log/netshim.log              ║"
         echo "╚════════════════════════════════════════════╝"
         echo ""
+        echo "WARNING: System will reboot in 10 seconds..."
+        for i in 10 9 8 7 6 5 4 3 2 1; do
+            printf "\r  Rebooting in %2d seconds... (Press Ctrl+C to cancel)" "$i"
+            sleep 1
+        done
+        echo ""
+        echo "==> Rebooting now..."
         cleanup
+        /sbin/shutdown -r now
         exit 0
     else
         echo "WARNING: Default config restore failed. Check ${LOG}"
