@@ -16,7 +16,7 @@ RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/d
 STARTUP_TAG="### NETSHIM_AUTOSTART ###"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="adc6e555b533216de19397560742497b5ed3e04568679128cdabf5f40446bab0"
+EXPECTED_SHA256="afd85a3d38d8070c6588e83412543d97ea58bb215bf3e819ce230a8a9882ecaf"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
