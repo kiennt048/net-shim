@@ -74,9 +74,9 @@ install_pkg() {
     fi
 }
 
-install_pkg "REST API"      "pfSense-pkg-RESTAPI" "${RESTAPI_PKG_URL}"
-install_pkg "Zabbix Agent7" "zabbix7-agent"       "zabbix7-agent"
-install_pkg "WireGuard"     "wireguard-tools"      "wireguard-tools"
+install_pkg "REST API"      "pfSense-pkg-RESTAPI"  "${RESTAPI_PKG_URL}"
+install_pkg "Zabbix Agent7" "zabbix7-agent"         "zabbix7-agent"
+install_pkg "WireGuard"     "pfSense-pkg-WireGuard" "pfSense-pkg-WireGuard"
 
 mkdir -p "${TMPDIR}"
 
@@ -213,11 +213,10 @@ if [ "${FIRST_INSTALL}" -eq 1 ]; then
         echo "╠════════════════════════════════════════════╣"
         echo "║  Default config restored successfully.     ║"
         echo "║  System will reboot once to apply changes. ║"
-        echo "║  Access: http://<pfsense-ip>:8080          ║"
+        echo "║  Access: http://<FIREWALL-IP>:8080         ║"
         echo "║  Logs:   /var/log/netshim.log              ║"
         echo "╚════════════════════════════════════════════╝"
         echo ""
-        # Clean up before reboot
         cleanup
         exit 0
     else
@@ -235,7 +234,7 @@ echo ""
 echo "╔════════════════════════════════════════════╗"
 echo "║         Installation Successful!           ║"
 echo "╠════════════════════════════════════════════╣"
-echo "║  Access: http://<pfsense-ip>:8080          ║"
+echo "║  Access: http://<FIREWALL-IP>:8080          ║"
 echo "║  Logs:   /var/log/netshim.log              ║"
 echo "╚════════════════════════════════════════════╝"
 echo ""
