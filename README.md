@@ -1,9 +1,11 @@
-fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/main/install.sh | sh
+# Install latest (kientest branch) - DEFAULT
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh
 
+# Install specific version tag
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh -s v1.7.1.26
 
+# Install from main branch
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh -s main
 
-Latest: fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh
-
-
-
-Specific version: fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/v1.7.1.26/install.sh | sh
+# Install from any branch/tag
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh -s <version>
