@@ -2,30 +2,44 @@
 
 ## Quick Deploy Commands
 
-### Deploy Latest Version (kientest branch)
+### Deploy Latest Version (Recommended - GitHub Releases)
 
 ```bash
-fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh
+# Install latest release (no CDN caching issues)
+fetch -o - https://github.com/kiennt048/net-shim/releases/latest/download/install.sh | sh
 ```
 
-This installs the latest build from the `kientest` branch.
+This downloads from GitHub Releases, which doesn't have CDN caching issues.
 
 ---
 
-### Deploy Specific Version (by tag)
+### Deploy Specific Version
 
 ```bash
-# Deploy v1.7.1.26
-fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/v1.7.1.26/install.sh | sh
+# Deploy v1.7.1.28
+fetch -o - https://github.com/kiennt048/net-shim/releases/download/v1.7.1.28/install.sh | sh
 
-# Deploy v1.7.1.25
-fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/v1.7.1.25/install.sh | sh
+# Deploy v1.7.1.27
+fetch -o - https://github.com/kiennt048/net-shim/releases/download/v1.7.1.27/install.sh | sh
 
 # Deploy any version - replace with your tag
-fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/v1.7.1.XX/install.sh | sh
+fetch -o - https://github.com/kiennt048/net-shim/releases/download/v1.7.1.XX/install.sh | sh
 ```
 
-This allows you to install a specific version or rollback to a previous version.
+---
+
+### Alternative: Deploy from Branch (may have CDN cache delay)
+
+```bash
+# Default - installs from kientest branch (latest builds)
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh
+
+# With version parameter
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh -s v1.7.1.26
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh -s main
+```
+
+**Note:** Branch-based downloads may be cached by GitHub CDN for 5-10 minutes after deployment.
 
 ---
 
@@ -98,6 +112,35 @@ Each tag contains build metadata:
 View tag details:
 ```bash
 git show v1.7.1.26
+```
+
+---
+
+## GitHub CDN Caching Workaround
+
+GitHub's raw.githubusercontent.com CDN caches files for 5-10 minutes. If you just deployed and the installer shows old checksums:
+
+### Option 1: Use commit hash (bypasses cache)
+```bash
+# Get latest commit hash from: https://github.com/kiennt048/net-shim/commits/kientest
+# Then use:
+fetch -o - https://github.com/kiennt048/net-shim/raw/<commit-hash>/install.sh | sh
+
+# Example:
+fetch -o - https://github.com/kiennt048/net-shim/raw/0448def/install.sh | sh
+```
+
+### Option 2: Wait 5-10 minutes
+The CDN cache expires automatically. Just wait and try again:
+```bash
+fetch -o - https://raw.githubusercontent.com/kiennt048/net-shim/kientest/install.sh | sh
+```
+
+### Option 3: Use GitHub Releases (future)
+Once GitHub Releases are set up, download from releases instead:
+```bash
+# This won't have caching issues
+fetch -o - https://github.com/kiennt048/net-shim/releases/download/v1.7.1.XX/install.sh | sh
 ```
 
 ---

@@ -127,7 +127,15 @@ deploy: init-version
 	git tag -a "$$TAG_NAME" -m "Build: $$FULL_VERSION\nSHA256: $$SHA256\nBranch: kientest" -f; \
 	git push origin kientest -f; \
 	git push origin "$$TAG_NAME" -f; \
-	echo "✅ Deployed to GitHub: $$TAG_NAME"
+	echo "✅ Deployed to GitHub: $$TAG_NAME"; \
+	echo ""; \
+	echo "📦 Creating GitHub Release..."; \
+	gh release create "$$TAG_NAME" \
+		$(BINARY_NAME) install.sh \
+		--title "$$FULL_VERSION" \
+		--notes "**Build Information**\n\n- Version: $$FULL_VERSION\n- SHA256: \`$$SHA256\`\n- Branch: kientest\n- Build Time: $$BUILD_TIME\n\n**Installation**\n\`\`\`bash\nfetch -o - https://github.com/kiennt048/net-shim/releases/download/$$TAG_NAME/install.sh | sh\n\`\`\`" \
+		--latest || echo "⚠️  Release already exists, updating..."; \
+	echo "✅ GitHub Release created: https://github.com/kiennt048/net-shim/releases/tag/$$TAG_NAME"
 
 # Verify build will work without actually building
 verify:
