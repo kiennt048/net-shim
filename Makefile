@@ -111,7 +111,7 @@ deploy: init-version
 		echo "❌ Binary not found. Run 'make build' first."; \
 		exit 1; \
 	fi
-	@# Read version info
+	@# Read version info and execute git commands
 	@BASE_VER=$$(head -1 $(VERSION_FILE)); \
 	BUILD_NUM=$$(tail -1 $(VERSION_FILE)); \
 	BUILD_TIME=$$(date +%Y%m%d_%H%M); \
@@ -122,22 +122,12 @@ deploy: init-version
 	echo "🏷️  Tag: $$TAG_NAME"; \
 	echo "🔐 SHA256: $$SHA256"; \
 	echo ""; \
-	echo "⚠️  COMMENTED COMMANDS - Uncomment in Makefile to enable:"; \
-	echo "   1. git add net-shim install.sh"; \
-	echo "   2. git commit -m \"Release $$FULL_VERSION\""; \
-	echo "   3. git tag -a $$TAG_NAME -m \"Build notes...\""; \
-	echo "   4. git push origin kientest"; \
-	echo "   5. git push origin $$TAG_NAME"; \
-	echo ""; \
-	echo "🔧 To enable auto-deploy:"; \
-	echo "   - Edit Makefile and uncomment the git commands below"; \
-	echo ""
-	git add $(BINARY_NAME) install.sh
-	git commit -m "Release $$FULL_VERSION - Auto-deployed" || echo "⚠️  No changes to commit"
-	git tag -a "$$TAG_NAME" -m "Build: $$FULL_VERSION\nSHA256: $$SHA256\nBranch: kientest" -f
-	git push origin kientest
-	git push origin "$$TAG_NAME" -f
-	@echo "✅ Deployed to GitHub: $$TAG_NAME"
+	git add $(BINARY_NAME) install.sh; \
+	git commit -m "Release $$FULL_VERSION - Auto-deployed" || echo "⚠️  No changes to commit"; \
+	git tag -a "$$TAG_NAME" -m "Build: $$FULL_VERSION\nSHA256: $$SHA256\nBranch: kientest" -f; \
+	git push origin kientest; \
+	git push origin "$$TAG_NAME" -f; \
+	echo "✅ Deployed to GitHub: $$TAG_NAME"
 
 # Verify build will work without actually building
 verify:
