@@ -3,7 +3,12 @@ set -eu
 
 ### ===== CONFIG =====
 APP="netshim"
-REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/main"
+
+# Version/branch to install (default: kientest for latest builds)
+# Can be overridden by passing argument: sh install.sh v1.7.1.26
+VERSION="${1:-kientest}"
+
+REPO_BASE="https://raw.githubusercontent.com/kiennt048/net-shim/${VERSION}"
 BIN_URL="${REPO_BASE}/net-shim"
 BIN_DST="/usr/local/sbin/net-shim"
 RC_FILE="/usr/local/etc/rc.d/netshim"
@@ -15,7 +20,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="ecebd9f005bdde4d809ce28475891d47305112ea7cd2922dd57106bf542a2388"
+EXPECTED_SHA256="d60ec73211c84cafbd9c828cee503412a4e1604392df297190fbdd9c77fc9700"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
@@ -45,6 +50,8 @@ trap cleanup EXIT
 echo ""
 echo "╔════════════════════════════════════════════╗"
 echo "║     BEYONDNET Firewall Control Installer   ║"
+echo "╠════════════════════════════════════════════╣"
+echo "║  Installing version: ${VERSION}"
 echo "╚════════════════════════════════════════════╝"
 echo ""
 
