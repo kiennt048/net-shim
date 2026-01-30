@@ -20,7 +20,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="22c6dddc6a52b97b0e2386a7fa996240d8ffe670179d7487f2521d1611e7f3ec"
+EXPECTED_SHA256="20c402f7afb1815148c71298ff24090238561100dfb02629cc9169270780e45a"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
@@ -86,7 +86,26 @@ install_pkg() {
     if ! pkg info "${_check}" >/dev/null 2>&1; then
         echo "==> ${_name} not found, installing..."
         if echo "${_source}" | grep -q "^http"; then
-            pkg-static add "${_source}" && echo "==> ${_name} installed" || echo "WARNING: ${_name} install failed"
+            # Install from URL
+            if pkg-static add "${_source}"; then
+                echo "==> ${_name} package files installed"
+                # Register with pfSense - run package sync to add menu/services
+                echo "==> Registering ${_name} with pfSense..."
+                /usr/local/bin/php -r "
+                    require_once('config.inc');
+                    require_once('pkg-utils.inc');
+                    \$pkg_name = '${_check}';
+                    if (function_exists('pkg_write_config')) {
+                        pkg_write_config();
+                    }
+                    if (function_exists('resync_all_package_configs')) {
+                        resync_all_package_configs(true);
+                    }
+                " 2>/dev/null || true
+                echo "==> ${_name} installed and registered"
+            else
+                echo "WARNING: ${_name} install failed"
+            fi
         else
             pkg install -y "${_source}" && echo "==> ${_name} installed" || echo "WARNING: ${_name} install failed"
         fi
