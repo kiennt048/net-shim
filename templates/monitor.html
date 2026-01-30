@@ -1,0 +1,1260 @@
+{{ define "content" }}
+<style>
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        line-height: 1;
+    }
+
+    .logo-beyond {
+        color: #FF6B35;
+    }
+
+    .logo-net {
+        color: #06B6D4;
+    }
+
+    .logo-subtitle {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .nav-menu {
+        flex: 1;
+        padding: 20px 0;
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .nav-item:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .nav-item.active {
+        background: var(--bg-hover);
+        color: var(--accent-cyan);
+        border-left-color: var(--accent-cyan);
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.7;
+    }
+
+    .nav-item.active .nav-icon {
+        opacity: 1;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .user-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-role {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .logout-btn {
+        width: 100%;
+        padding: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        color: var(--accent-red);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        padding: 30px 40px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .page-header-text {
+        flex: 1;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    /* Monitor Specific Styles */
+    .monitor-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 24px;
+    }
+
+    .monitor-section {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.2);
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 16px;
+        font-weight: 600;
+    }
+
+    .section-icon {
+        width: 20px;
+        height: 20px;
+        opacity: 0.7;
+    }
+
+    .section-content {
+        padding: 20px;
+    }
+
+    /* API Status Banner */
+    .api-status-banner {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px 20px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 12px;
+        margin-bottom: 24px;
+    }
+
+    .api-status-banner.connected {
+        background: rgba(16, 185, 129, 0.1);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .api-status-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .api-status-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .api-status-banner.connected .api-status-icon {
+        background: rgba(16, 185, 129, 0.2);
+    }
+
+    .api-status-text h3 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+
+    .api-status-text p {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .api-status-badge {
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 600;
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--accent-red);
+    }
+
+    .api-status-banner.connected .api-status-badge {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent-green);
+    }
+
+    /* Gateway Cards */
+    .gateway-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 16px;
+    }
+
+    .gateway-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        transition: all 0.2s;
+    }
+
+    .gateway-card:hover {
+        border-color: var(--border-active);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .gateway-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+    }
+
+    .gateway-name {
+        font-size: 15px;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .gateway-interface {
+        font-size: 11px;
+        color: var(--text-muted);
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2px 8px;
+        border-radius: 4px;
+    }
+
+    .gateway-status {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .gateway-status.online {
+        background: rgba(16, 185, 129, 0.2);
+        color: var(--accent-green);
+    }
+
+    .gateway-status.offline {
+        background: rgba(239, 68, 68, 0.2);
+        color: var(--accent-red);
+    }
+
+    .gateway-status.pending {
+        background: rgba(245, 158, 11, 0.2);
+        color: #f59e0b;
+    }
+
+    .gateway-status.unknown {
+        background: rgba(107, 114, 128, 0.2);
+        color: var(--text-muted);
+    }
+
+    .gateway-details {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+    }
+
+    .gateway-detail {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+    }
+
+    .gateway-detail-label {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .gateway-detail-value {
+        font-size: 13px;
+        font-weight: 500;
+        font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    .gateway-detail-value.good {
+        color: var(--accent-green);
+    }
+
+    .gateway-detail-value.warning {
+        color: #f59e0b;
+    }
+
+    .gateway-detail-value.bad {
+        color: var(--accent-red);
+    }
+
+    /* Traffic Graph */
+    .traffic-graph-container {
+        position: relative;
+        height: 300px;
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .traffic-graph {
+        width: 100%;
+        height: 100%;
+    }
+
+    .traffic-legend {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-top: 16px;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+    }
+
+    .legend-color {
+        width: 12px;
+        height: 12px;
+        border-radius: 3px;
+    }
+
+    .legend-color.inbound {
+        background: linear-gradient(135deg, #10b981, #06b6d4);
+    }
+
+    .legend-color.outbound {
+        background: linear-gradient(135deg, #f59e0b, #ef4444);
+    }
+
+    .legend-value {
+        font-weight: 600;
+        font-family: 'Monaco', 'Menlo', monospace;
+    }
+
+    /* Real-time Stats */
+    .realtime-stats {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 16px;
+        margin-bottom: 20px;
+    }
+
+    .stat-card {
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 10px;
+        padding: 16px;
+        text-align: center;
+    }
+
+    .stat-value {
+        font-size: 24px;
+        font-weight: 700;
+        font-family: 'Monaco', 'Menlo', monospace;
+        margin-bottom: 4px;
+    }
+
+    .stat-value.inbound {
+        color: var(--accent-green);
+    }
+
+    .stat-value.outbound {
+        color: #f59e0b;
+    }
+
+    .stat-label {
+        font-size: 11px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Loading States */
+    .loading-spinner {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        gap: 16px;
+    }
+
+    .spinner {
+        width: 40px;
+        height: 40px;
+        border: 3px solid var(--border);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .loading-text {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    /* Empty State */
+    .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 40px;
+        text-align: center;
+    }
+
+    .empty-icon {
+        width: 60px;
+        height: 60px;
+        margin-bottom: 16px;
+        opacity: 0.3;
+    }
+
+    .empty-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .empty-text {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    /* Last Updated */
+    .last-updated {
+        font-size: 12px;
+        color: var(--text-muted);
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .update-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: var(--accent-green);
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+
+        0%,
+        100% {
+            opacity: 1;
+        }
+
+        50% {
+            opacity: 0.4;
+        }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+        .realtime-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 768px) {
+        .gateway-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .realtime-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo"><span class="logo-beyond">BEYOND</span><span class="logo-net">NET</span></div>
+        <div class="logo-subtitle">Your Global Supporter</div>
+    </div>
+    <nav class="nav-menu">
+        <a href="/" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
+            </svg>
+            <span>Network</span>
+        </a>
+        <a href="/monitor" class="nav-item active">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+            </svg>
+            <span>Monitor</span>
+        </a>
+        <a href="/backup" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span>Backup/Reset</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ if .Username }}{{ printf "%.1s" .Username | upper }}{{ else }}A{{ end }}</div>
+            <div class="user-details">
+                <div class="user-name">{{ if .Username }}{{ .Username }}{{ else }}Admin{{ end }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L4 7.414V13h10V7.414zM4 6l4.5 4.5L13 6H4z"
+                    clip-rule="evenodd" />
+            </svg>
+            Sign Out
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1 class="page-title">System Monitor</h1>
+            <p class="page-subtitle">Real-time gateway status and WAN traffic monitoring</p>
+        </div>
+    </div>
+
+    <!-- API Status Banner -->
+    <div class="api-status-banner" id="apiStatusBanner">
+        <div class="api-status-info">
+            <div class="api-status-icon">
+                <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20" id="apiStatusIcon">
+                    <path fill-rule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+                        clip-rule="evenodd" />
+                </svg>
+            </div>
+            <div class="api-status-text">
+                <h3 id="apiStatusTitle">Checking REST API...</h3>
+                <p id="apiStatusDesc">Verifying connection to system monitoring</p>
+            </div>
+        </div>
+        <span class="api-status-badge" id="apiStatusBadge">Checking</span>
+    </div>
+
+    <div class="monitor-grid">
+        <!-- Gateway Status Section -->
+        <div class="monitor-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16zm0 2c-.076 0-.232.032-.465.262-.238.234-.497.623-.737 1.182-.389.907-.673 2.142-.766 3.556h3.936c-.093-1.414-.377-2.649-.766-3.556-.24-.56-.5-.948-.737-1.182C10.232 4.032 10.076 4 10 4zm3.971 5c-.089-1.546-.383-2.97-.837-4.118A6.004 6.004 0 0115.917 9h-1.946zm-2.003 2H8.032c.093 1.414.377 2.649.766 3.556.24.56.5.948.737 1.182.233.23.389.262.465.262.076 0 .232-.032.465-.262.238-.234.498-.623.737-1.182.389-.907.673-2.142.766-3.556zm1.166 4.118c.454-1.147.748-2.572.837-4.118h1.946a6.004 6.004 0 01-2.783 4.118zm-6.268 0C6.412 13.97 6.118 12.546 6.03 11H4.083a6.004 6.004 0 002.783 4.118z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Gateway Status (IPv4)
+                </div>
+                <div class="last-updated" id="gatewayLastUpdated">
+                    <span class="update-dot"></span>
+                    <span>--</span>
+                </div>
+            </div>
+            <div class="section-content">
+                <div id="gatewayContent">
+                    <div class="loading-spinner">
+                        <div class="spinner"></div>
+                        <div class="loading-text">Loading gateway status...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- WAN Traffic Section -->
+        <div class="monitor-section">
+            <div class="section-header">
+                <div class="section-title">
+                    <svg class="section-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path
+                            d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zM8 7a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zM14 4a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z" />
+                    </svg>
+                    WAN Traffic (Last Hour)
+                </div>
+                <div class="last-updated" id="trafficLastUpdated">
+                    <span class="update-dot"></span>
+                    <span>--</span>
+                </div>
+            </div>
+            <div class="section-content">
+                <!-- Real-time Stats -->
+                <div class="realtime-stats" id="realtimeStats">
+                    <div class="stat-card">
+                        <div class="stat-value inbound" id="currentIn">--</div>
+                        <div class="stat-label">Current In</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value outbound" id="currentOut">--</div>
+                        <div class="stat-label">Current Out</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value inbound" id="totalIn">--</div>
+                        <div class="stat-label">Total In (1h)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value outbound" id="totalOut">--</div>
+                        <div class="stat-label">Total Out (1h)</div>
+                    </div>
+                </div>
+
+                <!-- Traffic Graph -->
+                <div class="traffic-graph-container">
+                    <canvas id="trafficChart" class="traffic-graph"></canvas>
+                </div>
+
+                <div class="traffic-legend">
+                    <div class="legend-item">
+                        <div class="legend-color inbound"></div>
+                        <span>Inbound</span>
+                        <span class="legend-value" id="legendIn">--</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color outbound"></div>
+                        <span>Outbound</span>
+                        <span class="legend-value" id="legendOut">--</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js CDN -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+<script>
+    (function () {
+        'use strict';
+
+        // Configuration
+        const CONFIG = {
+            refreshInterval: 5000,      // 5 seconds
+            maxDataPoints: 720,         // 1 hour at 5 second intervals
+            chartMaxPoints: 120,        // Show last 10 minutes on chart
+            apiTimeout: 10000,          // 10 second timeout
+        };
+
+        // State
+        let isMonitoring = false;
+        let refreshTimer = null;
+        let trafficChart = null;
+        let trafficHistory = [];
+        let lastBytesIn = 0;
+        let lastBytesOut = 0;
+        let lastTimestamp = 0;
+        let apiConnected = false;
+
+        // DOM Elements
+        const elements = {
+            apiStatusBanner: document.getElementById('apiStatusBanner'),
+            apiStatusIcon: document.getElementById('apiStatusIcon'),
+            apiStatusTitle: document.getElementById('apiStatusTitle'),
+            apiStatusDesc: document.getElementById('apiStatusDesc'),
+            apiStatusBadge: document.getElementById('apiStatusBadge'),
+            gatewayContent: document.getElementById('gatewayContent'),
+            gatewayLastUpdated: document.getElementById('gatewayLastUpdated'),
+            trafficLastUpdated: document.getElementById('trafficLastUpdated'),
+            currentIn: document.getElementById('currentIn'),
+            currentOut: document.getElementById('currentOut'),
+            totalIn: document.getElementById('totalIn'),
+            totalOut: document.getElementById('totalOut'),
+            legendIn: document.getElementById('legendIn'),
+            legendOut: document.getElementById('legendOut'),
+        };
+
+        // Format bytes to human readable
+        function formatBytes(bytes, decimals = 2) {
+            if (bytes === 0 || bytes === null || bytes === undefined) return '0 B';
+            const k = 1024;
+            const dm = decimals < 0 ? 0 : decimals;
+            const sizes = ['B', 'KB', 'MB', 'GB', 'TB'];
+            const i = Math.floor(Math.log(Math.abs(bytes)) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+        }
+
+        // Format bytes per second
+        function formatBps(bytesPerSecond) {
+            if (bytesPerSecond === 0 || bytesPerSecond === null || bytesPerSecond === undefined) return '0 bps';
+            const bps = bytesPerSecond * 8; // Convert to bits
+            const k = 1000;
+            const sizes = ['bps', 'Kbps', 'Mbps', 'Gbps'];
+            const i = Math.floor(Math.log(Math.abs(bps)) / Math.log(k));
+            return parseFloat((bps / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // Format time
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        }
+
+        // Update API status banner
+        function updateApiStatus(connected, message, description) {
+            apiConnected = connected;
+
+            if (connected) {
+                elements.apiStatusBanner.classList.add('connected');
+                elements.apiStatusIcon.innerHTML = '<path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd" />';
+                elements.apiStatusBadge.textContent = 'Connected';
+            } else {
+                elements.apiStatusBanner.classList.remove('connected');
+                elements.apiStatusIcon.innerHTML = '<path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />';
+                elements.apiStatusBadge.textContent = 'Disconnected';
+            }
+
+            elements.apiStatusTitle.textContent = message;
+            elements.apiStatusDesc.textContent = description;
+        }
+
+        // Initialize Chart
+        function initChart() {
+            const ctx = document.getElementById('trafficChart').getContext('2d');
+
+            trafficChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: 'Inbound',
+                            data: [],
+                            borderColor: '#10b981',
+                            backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            borderWidth: 2,
+                        },
+                        {
+                            label: 'Outbound',
+                            data: [],
+                            borderColor: '#f59e0b',
+                            backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                            fill: true,
+                            tension: 0.4,
+                            pointRadius: 0,
+                            borderWidth: 2,
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
+                    },
+                    plugins: {
+                        legend: {
+                            display: false,
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(17, 22, 51, 0.95)',
+                            titleColor: '#e2e8f0',
+                            bodyColor: '#94a3b8',
+                            borderColor: '#2a3052',
+                            borderWidth: 1,
+                            padding: 12,
+                            displayColors: true,
+                            callbacks: {
+                                label: function (context) {
+                                    return context.dataset.label + ': ' + formatBps(context.raw);
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: {
+                                color: 'rgba(42, 48, 82, 0.5)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 10,
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(42, 48, 82, 0.5)',
+                                drawBorder: false,
+                            },
+                            ticks: {
+                                color: '#64748b',
+                                callback: function (value) {
+                                    return formatBps(value);
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 300,
+                    }
+                }
+            });
+        }
+
+        // Update chart with new data
+        function updateChart(dataPoint) {
+            if (!trafficChart) return;
+
+            const time = formatTime(new Date(dataPoint.timestamp));
+
+            trafficChart.data.labels.push(time);
+            trafficChart.data.datasets[0].data.push(dataPoint.inRate);
+            trafficChart.data.datasets[1].data.push(dataPoint.outRate);
+
+            // Keep only last N points
+            if (trafficChart.data.labels.length > CONFIG.chartMaxPoints) {
+                trafficChart.data.labels.shift();
+                trafficChart.data.datasets[0].data.shift();
+                trafficChart.data.datasets[1].data.shift();
+            }
+
+            trafficChart.update('none');
+        }
+
+        // Render gateway cards
+        function renderGateways(gateways) {
+            if (!gateways || gateways.length === 0) {
+                elements.gatewayContent.innerHTML = `
+                <div class="empty-state">
+                    <svg class="empty-icon" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd" d="M4.083 9h1.946c.089-1.546.383-2.97.837-4.118A6.004 6.004 0 004.083 9zM10 2a8 8 0 100 16 8 8 0 000-16z" clip-rule="evenodd" />
+                    </svg>
+                    <div class="empty-title">No Gateways Found</div>
+                    <div class="empty-text">No IPv4 gateways are configured on this system.</div>
+                </div>
+            `;
+                return;
+            }
+
+            const html = `
+            <div class="gateway-grid">
+                ${gateways.map(gw => {
+                const statusClass = getStatusClass(gw.status);
+                const delayClass = getDelayClass(gw.delay);
+                const lossClass = getLossClass(gw.loss);
+
+                return `
+                        <div class="gateway-card">
+                            <div class="gateway-header">
+                                <div class="gateway-name">
+                                    ${escapeHtml(gw.name)}
+                                </div>
+                                <span class="gateway-status ${statusClass}">${escapeHtml(gw.status || 'Unknown')}</span>
+                            </div>
+                            <div class="gateway-details">
+                                <div class="gateway-detail">
+                                    <div class="gateway-detail-label">Monitor IP</div>
+                                    <div class="gateway-detail-value">${escapeHtml(gw.monitor || gw.gateway || 'N/A')}</div>
+                                </div>
+                                <div class="gateway-detail">
+                                    <div class="gateway-detail-label">Latency</div>
+                                    <div class="gateway-detail-value ${delayClass}">${formatDelay(gw.delay)}</div>
+                                </div>
+                                <div class="gateway-detail">
+                                    <div class="gateway-detail-label">Packet Loss</div>
+                                    <div class="gateway-detail-value ${lossClass}">${formatLoss(gw.loss)}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+            }).join('')}
+            </div>
+        `;
+
+            elements.gatewayContent.innerHTML = html;
+        }
+
+        // Helper functions for gateway status
+        function getStatusClass(status) {
+            if (!status) return 'unknown';
+            const s = status.toLowerCase();
+            if (s === 'online' || s === 'none') return 'online';
+            if (s === 'offline' || s === 'down') return 'offline';
+            if (s === 'pending' || s === 'delay' || s === 'loss' || s === 'highloss' || s === 'highdelay') return 'pending';
+            return 'unknown';
+        }
+
+        function getDelayClass(delay) {
+            if (delay === undefined || delay === null) return '';
+            const ms = parseFloat(delay);
+            if (isNaN(ms)) return '';
+            if (ms < 50) return 'good';
+            if (ms < 150) return 'warning';
+            return 'bad';
+        }
+
+        function getLossClass(loss) {
+            if (loss === undefined || loss === null) return '';
+            const pct = parseFloat(loss);
+            if (isNaN(pct)) return '';
+            if (pct === 0) return 'good';
+            if (pct < 5) return 'warning';
+            return 'bad';
+        }
+
+        function formatDelay(delay) {
+            if (delay === undefined || delay === null || delay === '') return 'N/A';
+            // Handle string with 'ms' suffix
+            if (typeof delay === 'string' && delay.includes('ms')) {
+                return delay;
+            }
+            const ms = parseFloat(delay);
+            if (isNaN(ms)) return delay;
+            return ms.toFixed(2) + ' ms';
+        }
+
+        function formatLoss(loss) {
+            if (loss === undefined || loss === null || loss === '') return 'N/A';
+            // Handle string with '%' suffix
+            if (typeof loss === 'string' && loss.includes('%')) {
+                return loss;
+            }
+            const pct = parseFloat(loss);
+            if (isNaN(pct)) return loss;
+            return pct.toFixed(1) + '%';
+        }
+
+        function escapeHtml(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Fetch gateway status
+        async function fetchGatewayStatus() {
+            try {
+                const response = await fetch('/api/monitor/gateways', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: AbortSignal.timeout(CONFIG.apiTimeout),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    updateApiStatus(false, 'REST API Error', data.error);
+                    return null;
+                }
+
+                updateApiStatus(true, 'REST API Connected', 'Real-time monitoring active');
+                elements.gatewayLastUpdated.innerHTML = `
+                <span class="update-dot"></span>
+                <span>${formatTime(new Date())}</span>
+            `;
+
+                return data.gateways || [];
+            } catch (error) {
+                console.error('Gateway fetch error:', error);
+                updateApiStatus(false, 'Connection Error', error.message || 'Failed to connect to REST API');
+                return null;
+            }
+        }
+
+        // Fetch traffic data
+        async function fetchTrafficData() {
+            try {
+                const response = await fetch('/api/monitor/traffic', {
+                    method: 'GET',
+                    headers: { 'Accept': 'application/json' },
+                    signal: AbortSignal.timeout(CONFIG.apiTimeout),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    console.warn('Traffic data error:', data.error);
+                    return null;
+                }
+
+                return data;
+            } catch (error) {
+                console.error('Traffic fetch error:', error);
+                return null;
+            }
+        }
+
+        // Calculate traffic rates
+        function calculateTrafficRates(data) {
+            if (!data) return null;
+
+            const now = Date.now();
+            const bytesIn = data.bytes_in || 0;
+            const bytesOut = data.bytes_out || 0;
+
+            // First data point - just store and wait
+            if (lastTimestamp === 0) {
+                lastBytesIn = bytesIn;
+                lastBytesOut = bytesOut;
+                lastTimestamp = now;
+                return null;
+            }
+
+            // Calculate time delta
+            const timeDelta = (now - lastTimestamp) / 1000; // seconds
+            if (timeDelta < 0.1) return null; // Too fast
+
+            // Calculate byte deltas (handle counter wrap)
+            let deltaIn = bytesIn - lastBytesIn;
+            let deltaOut = bytesOut - lastBytesOut;
+
+            // Handle counter wrap (simple check)
+            if (deltaIn < 0) deltaIn = bytesIn;
+            if (deltaOut < 0) deltaOut = bytesOut;
+
+            // Calculate rates
+            const inRate = deltaIn / timeDelta;
+            const outRate = deltaOut / timeDelta;
+
+            // Update last values
+            lastBytesIn = bytesIn;
+            lastBytesOut = bytesOut;
+            lastTimestamp = now;
+
+            return {
+                timestamp: now,
+                inRate: inRate,
+                outRate: outRate,
+                bytesIn: bytesIn,
+                bytesOut: bytesOut,
+            };
+        }
+
+        // Update traffic UI
+        function updateTrafficUI(dataPoint) {
+            if (!dataPoint) return;
+
+            elements.currentIn.textContent = formatBps(dataPoint.inRate);
+            elements.currentOut.textContent = formatBps(dataPoint.outRate);
+            elements.legendIn.textContent = formatBps(dataPoint.inRate);
+            elements.legendOut.textContent = formatBps(dataPoint.outRate);
+
+            elements.trafficLastUpdated.innerHTML = `
+            <span class="update-dot"></span>
+            <span>${formatTime(new Date())}</span>
+        `;
+
+            // Calculate total from history
+            if (trafficHistory.length > 0) {
+                const firstPoint = trafficHistory[0];
+                const totalIn = dataPoint.bytesIn - (firstPoint.bytesIn || 0);
+                const totalOut = dataPoint.bytesOut - (firstPoint.bytesOut || 0);
+                elements.totalIn.textContent = formatBytes(totalIn > 0 ? totalIn : 0);
+                elements.totalOut.textContent = formatBytes(totalOut > 0 ? totalOut : 0);
+            }
+
+            // Store in history
+            trafficHistory.push(dataPoint);
+            if (trafficHistory.length > CONFIG.maxDataPoints) {
+                trafficHistory.shift();
+            }
+        }
+
+        // Main refresh function
+        async function refresh() {
+            // Fetch gateway status
+            const gateways = await fetchGatewayStatus();
+            if (gateways !== null) {
+                renderGateways(gateways);
+            }
+
+            // Fetch traffic data
+            const trafficData = await fetchTrafficData();
+            const trafficRates = calculateTrafficRates(trafficData);
+
+            if (trafficRates) {
+                updateTrafficUI(trafficRates);
+                updateChart(trafficRates);
+            }
+        }
+
+        // Start monitoring
+        function startMonitoring() {
+            if (isMonitoring) return;
+            isMonitoring = true;
+
+            // Initial fetch
+            refresh();
+
+            // Start refresh timer
+            refreshTimer = setInterval(refresh, CONFIG.refreshInterval);
+
+            console.log('Monitoring started');
+        }
+
+        // Stop monitoring
+        function stopMonitoring() {
+            if (!isMonitoring) return;
+            isMonitoring = false;
+
+            if (refreshTimer) {
+                clearInterval(refreshTimer);
+                refreshTimer = null;
+            }
+
+            console.log('Monitoring stopped');
+        }
+
+        // Handle visibility change (optimize resource usage)
+        document.addEventListener('visibilitychange', function () {
+            if (document.hidden) {
+                stopMonitoring();
+            } else {
+                startMonitoring();
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            initChart();
+            startMonitoring();
+        });
+
+        // Cleanup on unload
+        window.addEventListener('beforeunload', function () {
+            stopMonitoring();
+        });
+    })();
+</script>
+{{ end }}
+
+{{ template "base" . }}

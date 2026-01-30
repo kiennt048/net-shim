@@ -1,0 +1,491 @@
+ Production-Ready Test Checklist for Net-Shim      
+                                                    
+  1. Pre-Deployment Verification                    
+  ┌─────┬────────────┬─────────────────┬───────────┐
+  │  #  │    Test    │ Command/Action  │ Expected  │
+  │     │            │                 │  Result   │
+  ├─────┼────────────┼─────────────────┼───────────┤
+  │     │ Binary     │                 │ Build     │
+  │ 1.1 │ builds     │ make build      │ succeeds, │
+  │     │ without    │                 │  binary   │
+  │     │ errors     │                 │ created   │
+  ├─────┼────────────┼─────────────────┼───────────┤
+  │     │ Binary     │                 │           │
+  │ 1.2 │ size is    │ ls -lh net-shim │ ~8-10MB   │
+  │     │ reasonable │                 │           │
+  ├─────┼────────────┼─────────────────┼───────────┤
+  │     │ Version    │ ./net-shim      │ Shows     │
+  │ 1.3 │ displays   │ --version or    │ version   │
+  │     │ correctly  │ /version        │ info      │
+  │     │            │ endpoint        │           │
+  └─────┴────────────┴─────────────────┴───────────┘
+  ---                                               
+  2. Authentication & Security Tests                
+  #: 2.1                                            
+  Test: Login with valid credentials                
+  Action: POST /login with correct user/pass        
+  Expected Result: Redirect to dashboard, session   
+    cookie set                                      
+  ────────────────────────────────────────          
+  #: 2.2                                            
+  Test: Login with invalid credentials              
+  Action: POST /login with wrong password           
+  Expected Result: Error message, no session        
+  ────────────────────────────────────────          
+  #: 2.3                                            
+  Test: Access dashboard without login              
+  Action: GET / without session                     
+  Expected Result: Redirect to /login               
+  ────────────────────────────────────────          
+  #: 2.4                                            
+  Test: Access API without login                    
+  Action: GET /stats without session                
+  Expected Result: 401 or redirect                  
+  ────────────────────────────────────────          
+  #: 2.5                                            
+  Test: CSRF token validation                       
+  Action: POST /apply without CSRF token            
+  Expected Result: Rejected with security error     
+  ────────────────────────────────────────          
+  #: 2.6                                            
+  Test: CSRF token single-use                       
+  Action: Reuse same CSRF token twice               
+  Expected Result: Second request rejected          
+  ────────────────────────────────────────          
+  #: 2.7                                            
+  Test: Session timeout                             
+  Action: Wait 24h+ or clear session                
+  Expected Result: Redirected to login              
+  ────────────────────────────────────────          
+  #: 2.8                                            
+  Test: Logout clears session                       
+  Action: POST /logout                              
+  Expected Result: Session invalidated, redirect to 
+    login                                           
+  ---                                               
+  3. Interface Configuration Tests                  
+                                                    
+  3.1 Static IP Mode                                
+  #: 3.1.1                                          
+  Test: Set static IP on LAN                        
+  Action: Configure LAN: 10.0.0.1/24                
+  Expected Result: Interface gets IP, can ping      
+    gateway                                         
+  ────────────────────────────────────────          
+  #: 3.1.2                                          
+  Test: Set static IP with gateway                  
+  Action: Configure WAN: static + gateway           
+  Expected Result: Gateway added, routing works     
+  ────────────────────────────────────────          
+  #: 3.1.3                                          
+  Test: Change static IP                            
+  Action: Change from 10.0.0.1 to 10.0.0.2          
+  Expected Result: IP changes, connectivity         
+    maintained                                      
+  ────────────────────────────────────────          
+  #: 3.1.4                                          
+  Test: Invalid IP rejected                         
+  Action: Enter "999.999.999.999"                   
+  Expected Result: Validation error                 
+  ────────────────────────────────────────          
+  #: 3.1.5                                          
+  Test: Invalid subnet rejected                     
+  Action: Enter subnet "99"                         
+  Expected Result: Validation error                 
+  3.2 DHCP Client Mode                              
+  ┌───────┬───────────┬────────────┬───────────────┐
+  │   #   │   Test    │   Action   │   Expected    │
+  │       │           │            │    Result     │
+  ├───────┼───────────┼────────────┼───────────────┤
+  │       │ Set WAN   │ Configure  │ Gets IP from  │
+  │ 3.2.1 │ to DHCP   │ WAN: DHCP  │ upstream DHCP │
+  │       │           │ mode       │               │
+  ├───────┼───────────┼────────────┼───────────────┤
+  │       │ Switch    │ WAN:       │ Old static    │
+  │ 3.2.2 │ from      │ static →   │ config        │
+  │       │ static to │ DHCP       │ removed, DHCP │
+  │       │  DHCP     │            │  works        │
+  ├───────┼───────────┼────────────┼───────────────┤
+  │       │ DHCP      │ Wait for   │ IP maintained │
+  │ 3.2.3 │ renewal   │ lease      │  or renewed   │
+  │       │           │ renewal    │               │
+  └───────┴───────────┴────────────┴───────────────┘
+  3.3 PPPoE Mode                                    
+  #: 3.3.1                                          
+  Test: Configure PPPoE                             
+  Action: Set username/password                     
+  Expected Result: PPPoE connects, gets IP          
+  ────────────────────────────────────────          
+  #: 3.3.2                                          
+  Test: PPPoE with VLAN                             
+  Action: Enable VLAN tag (e.g., 35)                
+  Expected Result: VLAN created, PPPoE over VLAN    
+    works                                           
+  ────────────────────────────────────────          
+  #: 3.3.3                                          
+  Test: PPPoE password update                       
+  Action: Change password only                      
+  Expected Result: Connection re-established        
+  ────────────────────────────────────────          
+  #: 3.3.4                                          
+  Test: Switch from PPPoE to DHCP                   
+  Action: Change mode                               
+  Expected Result: PPPoE removed, physical interface
+                                                    
+    restored                                        
+  ────────────────────────────────────────          
+  #: 3.3.5                                          
+  Test: Missing username rejected                   
+  Action: Leave username empty                      
+  Expected Result: Validation error                 
+  3.4 DHCP Server                                   
+  #: 3.4.1                                          
+  Test: Enable DHCP server on LAN                   
+  Action: Enable + set pool range                   
+  Expected Result: Clients get IP from pool         
+  ────────────────────────────────────────          
+  #: 3.4.2                                          
+  Test: Custom DNS servers                          
+  Action: Set DNS1: 8.8.8.8, DNS2: 1.1.1.1          
+  Expected Result: Clients receive correct DNS      
+  ────────────────────────────────────────          
+  #: 3.4.3                                          
+  Test: Disable DHCP server                         
+  Action: Disable DHCP                              
+  Expected Result: Clients no longer get DHCP offers
+  ────────────────────────────────────────          
+  #: 3.4.4                                          
+  Test: Pool auto-calculation                       
+  Action: Enable without specifying range           
+  Expected Result: Pool auto-calculated from subnet 
+  ---                                               
+  4. Network Connectivity Tests (CRITICAL)          
+  #: 4.1                                            
+  Test: LAN to Internet after config                
+  Action: Apply any config, test from LAN client    
+  Expected Result: ping 8.8.8.8 works               
+  ────────────────────────────────────────          
+  #: 4.2                                            
+  Test: LAN to WAN IP                               
+  Action: From LAN, ping WAN interface IP           
+  Expected Result: Ping succeeds                    
+  ────────────────────────────────────────          
+  #: 4.3                                            
+  Test: NAT working                                 
+  Action: From LAN, access internet                 
+  Expected Result: Traffic NAT'd via WAN IP         
+  ────────────────────────────────────────          
+  #: 4.4                                            
+  Test: DNS resolution                              
+  Action: From LAN, nslookup google.com             
+  Expected Result: DNS resolves                     
+  ────────────────────────────────────────          
+  #: 4.5                                            
+  Test: Gateway monitoring                          
+  Action: Check Status > Gateways                   
+  Expected Result: Gateway shows online             
+  ────────────────────────────────────────          
+  #: 4.6                                            
+  Test: Routing table intact                        
+  Action: netstat -rn on pfSense                    
+  Expected Result: Default route via WAN gateway    
+  ────────────────────────────────────────          
+  #: 4.7                                            
+  Test: Filter rules loaded                         
+  Action: pfctl -sr                                 
+  Expected Result: Rules present, not just defaults 
+  ────────────────────────────────────────          
+  #: 4.8                                            
+  Test: NAT rules loaded                            
+  Action: pfctl -sn                                 
+  Expected Result: Outbound NAT rules present       
+  ────────────────────────────────────────          
+  #: 4.9                                            
+  Test: State table working                         
+  Action: pfctl -ss                                 
+  Expected Result: Active connections shown         
+  ---                                               
+  5. Backup & Restore Tests                         
+  ┌─────┬──────────────┬────────────┬──────────────┐
+  │  #  │     Test     │   Action   │  Expected    │
+  │     │              │            │    Result    │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Download     │ Click      │ XML file     │
+  │ 5.1 │ backup       │ "Download  │ downloads    │
+  │     │              │ Backup"    │              │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │              │ Open       │ Valid        │
+  │ 5.2 │ Backup file  │ downloaded │ pfSense      │
+  │     │ valid        │  XML       │ config       │
+  │     │              │            │ structure    │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │              │ Upload     │ Config       │
+  │ 5.3 │ Restore      │ previously │ restored,    │
+  │     │ backup       │  saved     │ connectivity │
+  │     │              │ backup     │  works       │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Restore      │ Upload     │ Error:       │
+  │ 5.4 │ invalid file │ non-XML    │ invalid      │
+  │     │              │ file       │ format       │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Restore      │ Upload     │ Error: not   │
+  │ 5.5 │ non-pfSense  │ random XML │ pfSense      │
+  │     │ XML          │            │ config       │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Factory      │ Click      │ Default      │
+  │ 5.6 │ reset        │ "Reset to  │ config       │
+  │     │              │ Defaults"  │ applied      │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Connectivity │ Restore    │ LAN clients  │
+  │ 5.7 │  after       │ config     │ can access   │
+  │     │ restore      │            │ internet     │
+  ├─────┼──────────────┼────────────┼──────────────┤
+  │     │ Connectivity │ Factory    │ LAN clients  │
+  │ 5.8 │  after reset │ reset      │ can access   │
+  │     │              │            │ internet     │
+  └─────┴──────────────┴────────────┴──────────────┘
+  ---                                               
+  6. System Operations Tests                        
+  ┌─────┬────────────┬────────────┬────────────────┐
+  │  #  │    Test    │   Action   │   Expected     │
+  │     │            │            │     Result     │
+  ├─────┼────────────┼────────────┼────────────────┤
+  │     │ System     │ Click      │ System         │
+  │ 6.1 │ reboot     │ "Reboot"   │ reboots, comes │
+  │     │            │            │  back online   │
+  ├─────┼────────────┼────────────┼────────────────┤
+  │ 6.2 │ System     │ Click      │ System powers  │
+  │     │ shutdown   │ "Shutdown" │ off            │
+  ├─────┼────────────┼────────────┼────────────────┤
+  │     │ Service    │ Reboot     │ net-shim       │
+  │ 6.3 │ survives   │ pfSense    │ auto-starts    │
+  │     │ reboot     │            │                │
+  └─────┴────────────┴────────────┴────────────────┘
+  ---                                               
+  7. Interface Enable/Disable Tests                 
+  #: 7.1                                            
+  Test: Disable optional interface                  
+  Action: Disable OPT1                              
+  Expected Result: Interface goes down              
+  ────────────────────────────────────────          
+  #: 7.2                                            
+  Test: Enable optional interface                   
+  Action: Enable OPT1                               
+  Expected Result: Interface comes up               
+  ────────────────────────────────────────          
+  #: 7.3                                            
+  Test: Connectivity after toggle                   
+  Action: Enable/disable any interface              
+  Expected Result: Other interfaces unaffected      
+  ────────────────────────────────────────          
+  #: 7.4                                            
+  Test: Assign unassigned NIC                       
+  Action: Enable unassigned em3                     
+  Expected Result: Creates OPT interface            
+  ---                                               
+  8. API & Monitoring Tests                         
+  #: 8.1                                            
+  Test: Stats API                                   
+  Action: GET /stats                                
+  Expected Result: JSON with interface stats        
+  ────────────────────────────────────────          
+  #: 8.2                                            
+  Test: Gateway status API                          
+  Action: GET /api/monitor/gateways                 
+  Expected Result: Gateway status JSON              
+  ────────────────────────────────────────          
+  #: 8.3                                            
+  Test: Traffic API                                 
+  Action: GET /api/monitor/traffic                  
+  Expected Result: Traffic counters JSON            
+  ────────────────────────────────────────          
+  #: 8.4                                            
+  Test: Health check                                
+  Action: GET /health                               
+  Expected Result: Returns "OK"                     
+  ────────────────────────────────────────          
+  #: 8.5                                            
+  Test: Version endpoint                            
+  Action: GET /version                              
+  Expected Result: Returns version JSON             
+  ---                                               
+  9. Edge Cases & Error Handling                    
+  #: 9.1                                            
+  Test: Configure non-existent interface            
+  Action: POST with interface="fake"                
+  Expected Result: Error: interface not found       
+  ────────────────────────────────────────          
+  #: 9.2                                            
+  Test: Invalid mode                                
+  Action: POST with mode="invalid"                  
+  Expected Result: Error: invalid mode              
+  ────────────────────────────────────────          
+  #: 9.3                                            
+  Test: MTU out of range                            
+  Action: Set MTU=100                               
+  Expected Result: Error: invalid MTU               
+  ────────────────────────────────────────          
+  #: 9.4                                            
+  Test: MSS out of range                            
+  Action: Set MSS=50000                             
+  Expected Result: Error: invalid MSS               
+  ────────────────────────────────────────          
+  #: 9.5                                            
+  Test: VLAN ID out of range                        
+  Action: Set VLAN=5000                             
+  Expected Result: Error: invalid VLAN ID           
+  ────────────────────────────────────────          
+  #: 9.6                                            
+  Test: Empty required fields                       
+  Action: Submit form with empty IP                 
+  Expected Result: Validation error                 
+  ────────────────────────────────────────          
+  #: 9.7                                            
+  Test: Special characters in description           
+  Action: Description with <script>                 
+  Expected Result: Sanitized, no XSS                
+  ────────────────────────────────────────          
+  #: 9.8                                            
+  Test: Large file upload                           
+  Action: Upload 10MB config                        
+  Expected Result: Error: file too large            
+  ---                                               
+  10. Concurrent Access Tests                       
+  ┌──────┬──────────────┬──────────┬───────────────┐
+  │  #   │     Test     │  Action  │   Expected    │
+  │      │              │          │    Result     │
+  ├──────┼──────────────┼──────────┼───────────────┤
+  │      │ Multiple     │ 2        │               │
+  │ 10.1 │ users logged │ browsers │ Both work     │
+  │      │  in          │  logged  │ independently │
+  │      │              │ in       │               │
+  ├──────┼──────────────┼──────────┼───────────────┤
+  │      │ Simultaneous │ 2 users  │ Both succeed  │
+  │ 10.2 │  config      │ apply    │ or proper     │
+  │      │ changes      │ config   │ locking       │
+  │      │              │ at once  │               │
+  ├──────┼──────────────┼──────────┼───────────────┤
+  │      │ Stats        │ Multiple │ Cached for 5  │
+  │ 10.3 │ caching      │  /stats  │ seconds       │
+  │      │              │ requests │               │
+  └──────┴──────────────┴──────────┴───────────────┘
+  ---                                               
+  11. HTTPS/TLS Tests                               
+  #: 11.1                                           
+  Test: HTTPS works                                 
+  Action: Access https://IP:8443                    
+  Expected Result: Certificate presented            
+  ────────────────────────────────────────          
+  #: 11.2                                           
+  Test: HTTP redirects to HTTPS                     
+  Action: Access http://IP:8080                     
+  Expected Result: Redirects to HTTPS               
+  ────────────────────────────────────────          
+  #: 11.3                                           
+  Test: Health check on HTTP                        
+  Action: curl http://IP:8080/health                
+  Expected Result: Returns OK (no redirect)         
+  ---                                               
+  12. Production Stress Test                        
+  #: 12.1                                           
+  Test: Rapid config changes                        
+  Action: Apply 10 configs in sequence              
+  Expected Result: All succeed, no corruption       
+  ────────────────────────────────────────          
+  #: 12.2                                           
+  Test: Long running stability                      
+  Action: Run for 24+ hours                         
+  Expected Result: No memory leaks, responsive      
+  ────────────────────────────────────────          
+  #: 12.3                                           
+  Test: Under network load                          
+  Action: Apply config during heavy traffic         
+  Expected Result: Config applies, traffic          
+    uninterrupted                                   
+  ---                                               
+  13. Rollback & Recovery Tests                     
+  ┌──────┬───────────┬───────────────┬─────────────┐
+  │  #   │   Test    │    Action     │  Expected   │
+  │      │           │               │   Result    │
+  ├──────┼───────────┼───────────────┼─────────────┤
+  │      │ Config    │ Apply config, │ Backup      │
+  │ 13.1 │ backup    │  check        │ files exist │
+  │      │ created   │ /cf/conf/     │             │
+  ├──────┼───────────┼───────────────┼─────────────┤
+  │      │           │ Copy backup   │ Previous    │
+  │ 13.2 │ Manual    │ to            │ config      │
+  │      │ rollback  │ config.xml,   │ restored    │
+  │      │           │ reload        │             │
+  ├──────┼───────────┼───────────────┼─────────────┤
+  │      │ Recovery  │ Apply broken  │ System      │
+  │ 13.3 │ from bad  │ config        │ still       │
+  │      │ config    │               │ accessible  │
+  └──────┴───────────┴───────────────┴─────────────┘
+  ---                                               
+  Quick Smoke Test Script (Run on pfSense)          
+                                                    
+  #!/bin/sh                                         
+  # Run after deploying new net-shim version        
+                                                    
+  echo "=== Net-Shim Smoke Test ==="                
+                                                    
+  # 1. Check service running                        
+  echo -n "1. Service running: "                    
+  pgrep net-shim > /dev/null && echo "PASS" || echo 
+  "FAIL"                                            
+                                                    
+  # 2. Health check                                 
+  echo -n "2. Health endpoint: "                    
+  curl -s http://127.0.0.1:8080/health | grep -q    
+  "OK" && echo "PASS" || echo "FAIL"                
+                                                    
+  # 3. HTTPS working                                
+  echo -n "3. HTTPS available: "                    
+  curl -sk https://127.0.0.1:8443/health | grep -q  
+  "OK" && echo "PASS" || echo "FAIL"                
+                                                    
+  # 4. Check routing                                
+  echo -n "4. Default route exists: "               
+  netstat -rn | grep -q "^default\|^0.0.0.0" && echo
+   "PASS" || echo "FAIL"                            
+                                                    
+  # 5. Check NAT rules                              
+  echo -n "5. NAT rules loaded: "                   
+  pfctl -sn 2>/dev/null | grep -q "nat on" && echo  
+  "PASS" || echo "FAIL"                             
+                                                    
+  # 6. Check filter rules                           
+  echo -n "6. Filter rules loaded: "                
+  pfctl -sr 2>/dev/null | grep -q "pass" && echo    
+  "PASS" || echo "FAIL"                             
+                                                    
+  # 7. Ping gateway                                 
+  GW=$(netstat -rn | grep "^default\|^0.0.0.0" | awk
+   '{print $2}' | head -1)                          
+  echo -n "7. Gateway reachable ($GW): "            
+  ping -c 1 -t 2 $GW > /dev/null 2>&1 && echo "PASS"
+   || echo "FAIL"                                   
+                                                    
+  # 8. Ping internet                                
+  echo -n "8. Internet reachable: "                 
+  ping -c 1 -t 2 8.8.8.8 > /dev/null 2>&1 && echo   
+  "PASS" || echo "FAIL"                             
+                                                    
+  echo "=== Test Complete ==="                      
+                                                    
+  ---                                               
+  Critical Tests Before Production                  
+                                                    
+  The MUST PASS tests before going to production:   
+                                                    
+  1. 4.1 - LAN to Internet after config change      
+  2. 4.3 - NAT working                              
+  3. 4.6 - Routing table intact                     
+  4. 4.7 - Filter rules loaded                      
+  5. 4.8 - NAT rules loaded                         
+  6. 5.7 - Connectivity after restore               
+  7. 5.8 - Connectivity after reset                 
+  8. 7.3 - Connectivity after interface toggle      
+                                                    
+  These were the exact issues you encountered - the 
+  fixes I made should resolve all of them.  

@@ -1,0 +1,1011 @@
+{{ define "content" }}
+<style>
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        line-height: 1;
+    }
+
+    .logo-beyond {
+        color: #FF6B35;
+    }
+
+    .logo-net {
+        color: #06B6D4;
+    }
+
+    .logo-subtitle {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .nav-menu {
+        flex: 1;
+        padding: 20px 0;
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .nav-item:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .nav-item.active {
+        background: var(--bg-hover);
+        color: var(--accent-cyan);
+        border-left-color: var(--accent-cyan);
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.7;
+    }
+
+    .nav-item.active .nav-icon {
+        opacity: 1;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .user-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-role {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .logout-btn {
+        width: 100%;
+        padding: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        color: var(--accent-red);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        padding: 30px 40px;
+    }
+
+    .page-header {
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+    }
+
+    .page-header-text {
+        flex: 1;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    /* Backup Page Specific Styles */
+    .backup-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+    }
+
+    .backup-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 24px;
+        transition: all 0.3s ease;
+    }
+
+    .backup-card:hover {
+        border-color: var(--accent-blue);
+    }
+
+    .backup-card.danger {
+        border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .backup-card.danger:hover {
+        border-color: var(--accent-red);
+    }
+
+    .card-header {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .card-icon.download {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .card-icon.upload {
+        background: rgba(59, 130, 246, 0.15);
+        color: var(--accent-blue);
+    }
+
+    .card-icon.reset {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+    }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .card-description {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .card-content {
+        margin-top: 20px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-success {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+        color: white;
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        color: white;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, var(--accent-red), #dc2626);
+        color: white;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+    }
+
+    .btn-danger:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+        box-shadow: none;
+    }
+
+    .file-upload {
+        border: 2px dashed var(--border);
+        border-radius: 8px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.2s;
+        cursor: pointer;
+        margin-bottom: 16px;
+    }
+
+    .file-upload:hover {
+        border-color: var(--accent-blue);
+        background: rgba(59, 130, 246, 0.05);
+    }
+
+    .file-upload.has-file {
+        border-color: var(--accent-green);
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .file-upload-icon {
+        font-size: 32px;
+        margin-bottom: 12px;
+    }
+
+    .file-upload-text {
+        font-size: 14px;
+        color: var(--text-secondary);
+    }
+
+    .file-upload-hint {
+        font-size: 12px;
+        color: var(--text-muted);
+        margin-top: 8px;
+    }
+
+    .file-input {
+        display: none;
+    }
+
+    .selected-file {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(16, 185, 129, 0.1);
+        border: 1px solid rgba(16, 185, 129, 0.3);
+        border-radius: 6px;
+        margin-bottom: 16px;
+    }
+
+    .selected-file-name {
+        font-weight: 600;
+        color: var(--accent-green);
+        flex: 1;
+    }
+
+    .selected-file-size {
+        font-size: 12px;
+        color: var(--text-muted);
+    }
+
+    .danger-zone {
+        background: rgba(239, 68, 68, 0.05);
+        border: 1px solid rgba(239, 68, 68, 0.2);
+        border-radius: 8px;
+        padding: 20px;
+    }
+
+    .danger-warning {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+        padding: 16px;
+        background: rgba(239, 68, 68, 0.1);
+        border-radius: 6px;
+    }
+
+    .danger-warning-icon {
+        font-size: 24px;
+    }
+
+    .danger-warning-text {
+        font-size: 13px;
+        color: var(--text-secondary);
+    }
+
+    .confirm-input-group {
+        margin-bottom: 16px;
+    }
+
+    .confirm-label {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .confirm-input {
+        width: 100%;
+        max-width: 300px;
+        padding: 12px 16px;
+        background: rgba(0, 0, 0, 0.3);
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text-primary);
+        font-size: 14px;
+        font-family: 'Courier New', monospace;
+        letter-spacing: 2px;
+    }
+
+    .confirm-input:focus {
+        outline: none;
+        border-color: var(--accent-red);
+    }
+
+    .hidden {
+        display: none !important;
+    }
+
+    /* Processing Overlay */
+    .processing-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .processing-overlay.active {
+        display: flex;
+    }
+
+    .processing-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    .processing-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .processing-subtext {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .btn.processing {
+        position: relative;
+        pointer-events: none;
+        opacity: 0.7;
+    }
+
+    .btn.processing::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        top: 50%;
+        left: 50%;
+        margin-left: -8px;
+        margin-top: -8px;
+        border: 2px solid transparent;
+        border-top-color: currentColor;
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+</style>
+
+<!-- Processing Overlay -->
+<div id="processingOverlay" class="processing-overlay">
+    <div class="processing-spinner"></div>
+    <div class="processing-text" id="processingText">Processing...</div>
+    <div class="processing-subtext" id="processingSubtext">Please wait while we apply your changes</div>
+</div>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo"><span class="logo-beyond">BEYOND</span><span class="logo-net">NET</span></div>
+        <div class="logo-subtitle">Your Global Supporter</div>
+    </div>
+    <nav class="nav-menu">
+        <a href="/" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
+            </svg>
+            <span>Network</span>
+        </a>
+        <a href="/monitor" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+            </svg>
+            <span>Monitor</span>
+        </a>
+        <a href="/backup" class="nav-item active">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span>Backup/Reset</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ if .Username }}{{ printf "%.1s" .Username | upper }}{{ else }}A{{ end }}</div>
+            <div class="user-details">
+                <div class="user-name">{{ if .Username }}{{ .Username }}{{ else }}Admin{{ end }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L4 7.414V13h10V7.414zM4 6l4.5 4.5L13 6H4z"
+                    clip-rule="evenodd" />
+            </svg>
+            Sign Out
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="page-header">
+        <div class="page-header-text">
+            <h1 class="page-title">Backup & Reset</h1>
+            <p class="page-subtitle">Manage system configuration backups and restore points</p>
+        </div>
+    </div>
+
+    {{ if .IsRebooting }}
+    <div
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 20px;">
+        <div style="font-size: 64px;">🔄</div>
+        <div style="font-size: 24px; font-weight: 600; color: white;">System is Rebooting...</div>
+        <div style="font-size: 14px; color: var(--text-muted);">Please wait while the system restarts. This page will
+            refresh automatically.</div>
+        <div style="margin-top: 20px;">
+            <div
+                style="width: 200px; height: 4px; background: rgba(255,255,255,0.2); border-radius: 2px; overflow: hidden;">
+                <div style="width: 100%; height: 100%; background: var(--accent-cyan); animation: progress 30s linear;">
+                </div>
+            </div>
+        </div>
+    </div>
+    <style>
+        @keyframes progress {
+            from {
+                transform: translateX(0);
+            }
+
+            to {
+                transform: translateX(100%);
+            }
+        }
+    </style>
+    <script>
+        // Try to reconnect every 5 seconds
+        let checkCount = 0;
+        const maxChecks = 60;
+        function checkServer() {
+            checkCount++;
+            if (checkCount > maxChecks) {
+                window.location.href = '/';
+                return;
+            }
+            fetch('/', { method: 'HEAD', cache: 'no-store' })
+                .then(response => {
+                    if (response.ok) {
+                        window.location.href = '/';
+                    } else {
+                        setTimeout(checkServer, 5000);
+                    }
+                })
+                .catch(() => {
+                    setTimeout(checkServer, 5000);
+                });
+        }
+        setTimeout(checkServer, 10000);
+    </script>
+    {{ else if .IsShuttingDown }}
+    <div
+        style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); display: flex; align-items: center; justify-content: center; z-index: 9999; flex-direction: column; gap: 20px;">
+        <div style="font-size: 64px;">⏻</div>
+        <div style="font-size: 24px; font-weight: 600; color: white;">System is Shutting Down...</div>
+        <div style="font-size: 14px; color: var(--text-muted);">The system is powering off. You will need physical
+            access to turn it back on.</div>
+        <div
+            style="margin-top: 20px; padding: 16px 24px; background: rgba(100, 116, 139, 0.2); border: 1px solid rgba(100, 116, 139, 0.4); border-radius: 8px;">
+            <span style="color: #94a3b8; font-size: 13px;">💡 To reconnect, physically power on the firewall.</span>
+        </div>
+    </div>
+    {{ else if .LastMsg }}
+    <div
+        style="padding: 14px 16px; border-radius: 8px; margin-bottom: 24px; font-size: 14px; {{ if .IsError }}background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: var(--accent-red);{{ else if .ShowRebootBtn }}background: rgba(245, 158, 11, 0.1); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b;{{ else }}background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); color: var(--accent-green);{{ end }}">
+        <div
+            style="display: flex; align-items: center; gap: 10px; margin-bottom: {{ if .ShowRebootBtn }}16px{{ else }}0{{ end }};">
+            {{ .LastMsg }}
+        </div>
+        {{ if .ShowRebootBtn }}
+        <div
+            style="display: flex; align-items: center; gap: 16px; padding-top: 16px; border-top: 1px solid rgba(245, 158, 11, 0.3);">
+            <span style="font-size: 13px; color: var(--text-secondary);">A system reboot is recommended to ensure all
+                services load the new configuration properly.</span>
+            <form action="/system/reboot" method="POST" style="margin: 0;" onsubmit="return confirmReboot()">
+                <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                <button type="submit" class="btn"
+                    style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); white-space: nowrap;">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Reboot Now
+                </button>
+            </form>
+        </div>
+        {{ end }}
+    </div>
+    {{ end }}
+
+    <div class="backup-sections">
+        <!-- Backup Section - Hidden -->
+        <div class="backup-card" style="display: none;">
+            <div class="card-header">
+                <div class="card-icon download">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="card-title">Download Backup</h3>
+                    <p class="card-description">Download the current system configuration file</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <a href="/backup/download" class="btn btn-success">
+                    <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z"
+                            clip-rule="evenodd" />
+                    </svg>
+                    Download config.xml
+                </a>
+            </div>
+        </div>
+
+        <!-- Restore Section -->
+        <div class="backup-card">
+            <div class="card-header">
+                <div class="card-icon upload">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="card-title">Restore Configuration</h3>
+                    <p class="card-description">Upload a previously saved configuration file to restore</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <form id="restoreForm" action="/backup/restore" method="POST" enctype="multipart/form-data">
+                    <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+                    <div class="file-upload" id="fileUploadZone"
+                        onclick="document.getElementById('configFile').click()">
+                        <div class="file-upload-icon">📁</div>
+                        <div class="file-upload-text">Click to select or drag and drop your config.xml file</div>
+                        <div class="file-upload-hint">Maximum file size: 5MB</div>
+                    </div>
+
+                    <input type="file" id="configFile" name="config_file" class="file-input" accept=".xml"
+                        onchange="handleFileSelect(this)">
+
+                    <div id="selectedFileInfo" class="selected-file hidden">
+                        <span class="selected-file-name" id="fileName"></span>
+                        <span class="selected-file-size" id="fileSize"></span>
+                        <button type="button" onclick="clearFile()"
+                            style="background: none; border: none; color: var(--accent-red); cursor: pointer;">✕</button>
+                    </div>
+
+                    <button type="submit" id="restoreBtn" class="btn btn-primary" disabled
+                        onclick="return confirmRestore()">
+                        <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM6.293 6.707a1 1 0 010-1.414l3-3a1 1 0 011.414 0l3 3a1 1 0 01-1.414 1.414L11 5.414V13a1 1 0 11-2 0V5.414L7.707 6.707a1 1 0 01-1.414 0z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Restore Configuration
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Reset to Default Section -->
+        <div class="backup-card danger">
+            <div class="card-header">
+                <div class="card-icon reset">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="card-title">Reset to Default</h3>
+                    <p class="card-description">Restore the system to factory default configuration</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div class="danger-zone">
+                    <div class="danger-warning">
+                        <span class="danger-warning-icon">⚠️</span>
+                        <div class="danger-warning-text">
+                            <strong>Warning:</strong> This action will reset all system settings to the factory default
+                            configuration.
+                            All custom settings, firewall rules, and network configurations will be permanently lost.
+                            The system will reboot after the reset is complete.
+                        </div>
+                    </div>
+
+                    <form id="resetForm" action="/backup/reset" method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+
+                        <div class="confirm-input-group">
+                            <label class="confirm-label">Type <strong style="color: var(--accent-red);">RESET</strong>
+                                to confirm:</label>
+                            <input type="text" id="resetConfirmInput" class="confirm-input"
+                                placeholder="Type RESET here" oninput="validateResetInput(this)">
+                        </div>
+
+                        <button type="submit" id="resetBtn" class="btn btn-danger" disabled
+                            onclick="return confirmReset()">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Reset to Factory Defaults
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Controls Section -->
+        <div class="backup-card" style="border-color: rgba(99, 102, 241, 0.3);">
+            <div class="card-header">
+                <div class="card-icon" style="background: rgba(99, 102, 241, 0.15); color: #6366f1;">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="card-title">System Controls</h3>
+                    <p class="card-description">Manage system power state - reboot or shut down the firewall</p>
+                </div>
+            </div>
+            <div class="card-content">
+                <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+                    <!-- Reboot Button -->
+                    <form action="/system/reboot" method="POST" style="margin: 0;" onsubmit="return confirmReboot()">
+                        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                        <button type="submit" class="btn"
+                            style="background: linear-gradient(135deg, #f59e0b, #d97706); color: white; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Reboot System
+                        </button>
+                    </form>
+                    <!-- Shutdown Button -->
+                    <form action="/system/shutdown" method="POST" style="margin: 0;"
+                        onsubmit="return confirmShutdown()">
+                        <input type="hidden" name="csrf_token" value="{{ .CSRFToken }}">
+                        <button type="submit" class="btn"
+                            style="background: linear-gradient(135deg, #64748b, #475569); color: white; box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3);">
+                            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd"
+                                    d="M10 18a8 8 0 100-16 8 8 0 000 16zM9 5a1 1 0 112 0v4a1 1 0 11-2 0V5zm-.707 6.293a1 1 0 011.414 0l.083.094a1 1 0 01.083 1.32l-.083.094A3.001 3.001 0 0110 14a3 3 0 01-.707-5.707z"
+                                    clip-rule="evenodd" />
+                            </svg>
+                            Shutdown System
+                        </button>
+                    </form>
+                </div>
+                <p style="margin-top: 16px; font-size: 12px; color: var(--text-muted);">
+                    ⚠️ Warning: Shutdown will power off the system. You will need physical access to turn it back on.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // File upload handling
+    function handleFileSelect(input) {
+        const file = input.files[0];
+        if (file) {
+            const maxSize = 5 * 1024 * 1024; // 5MB
+            if (file.size > maxSize) {
+                alert('File size exceeds 5MB limit');
+                clearFile();
+                return;
+            }
+
+            if (!file.name.endsWith('.xml')) {
+                alert('Please select an XML file');
+                clearFile();
+                return;
+            }
+
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('fileSize').textContent = formatFileSize(file.size);
+            document.getElementById('selectedFileInfo').classList.remove('hidden');
+            document.getElementById('fileUploadZone').classList.add('has-file');
+            document.getElementById('restoreBtn').disabled = false;
+        }
+    }
+
+    function clearFile() {
+        document.getElementById('configFile').value = '';
+        document.getElementById('selectedFileInfo').classList.add('hidden');
+        document.getElementById('fileUploadZone').classList.remove('has-file');
+        document.getElementById('restoreBtn').disabled = true;
+    }
+
+    function formatFileSize(bytes) {
+        if (bytes < 1024) return bytes + ' B';
+        if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+        return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    function confirmRestore() {
+        return confirm('⚠️ WARNING: This will replace the current configuration with the uploaded file.\n\nThe system may reboot. Are you sure you want to continue?');
+    }
+
+    function confirmReboot() {
+        return confirm('⚠️ REBOOT SYSTEM\n\nThe system will restart immediately and all connections will be briefly interrupted.\n\nAre you sure you want to reboot now?');
+    }
+
+    function confirmShutdown() {
+        return confirm('⚠️ SHUTDOWN SYSTEM\n\n⚠️ WARNING: The system will power off completely!\n\nYou will need PHYSICAL ACCESS to turn the firewall back on.\n\nAll network connectivity through this firewall will be lost.\n\nAre you absolutely sure you want to shut down?');
+    }
+
+    // Processing overlay helper
+    function showProcessing(title, subtitle) {
+        const overlay = document.getElementById('processingOverlay');
+        const textEl = document.getElementById('processingText');
+        const subtextEl = document.getElementById('processingSubtext');
+
+        if (title) textEl.textContent = title;
+        if (subtitle) subtextEl.textContent = subtitle;
+
+        overlay.classList.add('active');
+    }
+
+    function hideProcessing() {
+        document.getElementById('processingOverlay').classList.remove('active');
+    }
+
+    // Wrap form submissions with processing indicators
+    document.addEventListener('DOMContentLoaded', function () {
+        // Restore form
+        const restoreForm = document.getElementById('restoreForm');
+        if (restoreForm) {
+            restoreForm.addEventListener('submit', function (e) {
+                if (confirmRestore()) {
+                    showProcessing('Restoring Configuration...', 'This may take a moment. Please do not close this page.');
+                } else {
+                    e.preventDefault();
+                }
+            });
+            // Remove inline onclick to avoid double confirm
+            const restoreBtn = document.getElementById('restoreBtn');
+            if (restoreBtn) restoreBtn.removeAttribute('onclick');
+        }
+
+        // Reset form
+        const resetForm = document.getElementById('resetForm');
+        if (resetForm) {
+            resetForm.addEventListener('submit', function (e) {
+                if (confirmReset()) {
+                    showProcessing('Resetting to Factory Defaults...', 'This may take a moment. Please do not close this page.');
+                } else {
+                    e.preventDefault();
+                }
+            });
+            // Remove inline onclick to avoid double confirm
+            const resetBtn = document.getElementById('resetBtn');
+            if (resetBtn) resetBtn.removeAttribute('onclick');
+        }
+
+        // Reboot form - find by action
+        document.querySelectorAll('form[action="/system/reboot"]').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (confirmReboot()) {
+                    showProcessing('Initiating Reboot...', 'The system will restart shortly.');
+                } else {
+                    e.preventDefault();
+                }
+            });
+            form.removeAttribute('onsubmit');
+        });
+
+        // Shutdown form - find by action
+        document.querySelectorAll('form[action="/system/shutdown"]').forEach(function (form) {
+            form.addEventListener('submit', function (e) {
+                if (confirmShutdown()) {
+                    showProcessing('Initiating Shutdown...', 'The system will power off shortly.');
+                } else {
+                    e.preventDefault();
+                }
+            });
+            form.removeAttribute('onsubmit');
+        });
+    });
+
+    // Reset confirmation
+    function validateResetInput(input) {
+        const resetBtn = document.getElementById('resetBtn');
+        resetBtn.disabled = input.value !== 'RESET';
+    }
+
+    function confirmReset() {
+        const input = document.getElementById('resetConfirmInput');
+        if (input.value !== 'RESET') {
+            alert('Please type RESET to confirm');
+            return false;
+        }
+        return confirm('⚠️ FINAL WARNING!\n\nThis will PERMANENTLY DELETE all custom configurations and reset to factory defaults.\n\nThe system will REBOOT after this operation.\n\nAre you absolutely sure?');
+    }
+
+    // Drag and drop
+    const dropZone = document.getElementById('fileUploadZone');
+
+    dropZone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = 'var(--accent-blue)';
+        dropZone.style.background = 'rgba(59, 130, 246, 0.1)';
+    });
+
+    dropZone.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '';
+        dropZone.style.background = '';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        dropZone.style.borderColor = '';
+        dropZone.style.background = '';
+
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+            document.getElementById('configFile').files = files;
+            handleFileSelect(document.getElementById('configFile'));
+        }
+    });
+</script>
+{{ end }}
+
+{{ template "base" . }}
