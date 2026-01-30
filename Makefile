@@ -125,7 +125,7 @@ deploy: init-version
 	git add $(BINARY_NAME) install.sh; \
 	git commit -m "Release $$FULL_VERSION - Auto-deployed" || echo "⚠️  No changes to commit"; \
 	git tag -a "$$TAG_NAME" -m "Build: $$FULL_VERSION\nSHA256: $$SHA256\nBranch: kientest" -f; \
-	git push origin kientest; \
+	git push origin kientest -f; \
 	git push origin "$$TAG_NAME" -f; \
 	echo "✅ Deployed to GitHub: $$TAG_NAME"
 
