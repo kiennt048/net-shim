@@ -20,7 +20,7 @@ HEALTH_URL="http://127.0.0.1:8080/health"
 RESTAPI_PKG_URL="https://github.com/pfrest/pfSense-pkg-RESTAPI/releases/latest/download/pfSense-2.8.1-pkg-RESTAPI.pkg"
 
 # 🔐 UPDATE THIS AFTER EACH BUILD
-EXPECTED_SHA256="2e6b321a6f5e219ce1407c452bcbc69a108d943e55f7e593c11205ac89e7e2f8"
+EXPECTED_SHA256="22c6dddc6a52b97b0e2386a7fa996240d8ffe670179d7487f2521d1611e7f3ec"
 ### ==================
 
 TMPDIR="/tmp/netshim.$$"
@@ -96,7 +96,7 @@ install_pkg() {
 }
 
 install_pkg "REST API"      "pfSense-pkg-RESTAPI"  "${RESTAPI_PKG_URL}"
-install_pkg "Zabbix Agent 7" "zabbix7-agent"        "zabbix7-agent"
+install_pkg "Zabbix Agent 7" "pfSense-pkg-zabbix-agent7" "pfSense-pkg-zabbix-agent7"
 install_pkg "WireGuard"      "pfSense-pkg-WireGuard" "pfSense-pkg-WireGuard"
 
 mkdir -p "${TMPDIR}"
