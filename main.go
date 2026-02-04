@@ -692,6 +692,35 @@ func main() {
 		})
 	}))
 
+	// --- SECURITY PAGE ---
+	http.HandleFunc("/security", auth.RequireLogin(func(w http.ResponseWriter, r *http.Request) {
+		cookie, _ := r.Cookie("netshim_sess")
+		username := auth.GetUsername(cookie.Value)
+
+		// Parse message from query parameter
+		msg := r.URL.Query().Get("msg")
+		lastMsg := ""
+		isErr := false
+
+		if msg == "success" {
+			lastMsg = "Operation completed successfully"
+		} else if strings.HasPrefix(msg, "success:") {
+			lastMsg = strings.TrimPrefix(msg, "success:")
+		} else if strings.HasPrefix(msg, "error:") {
+			isErr = true
+			lastMsg = sanitizeMessage(strings.TrimPrefix(msg, "error:"))
+		}
+
+		render(w, "security.html", PageData{
+			Title: "Security",
+			IndexData: IndexData{
+				Username: username,
+				LastMsg:  lastMsg,
+				IsError:  isErr,
+			},
+		})
+	}))
+
 	// --- BACKUP PAGE ---
 	http.HandleFunc("/backup", auth.RequireLogin(func(w http.ResponseWriter, r *http.Request) {
 		cookie, _ := r.Cookie("netshim_sess")
