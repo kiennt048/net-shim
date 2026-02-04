@@ -225,6 +225,11 @@
         color: var(--accent-green);
     }
 
+    .card-icon.filter {
+        background: rgba(245, 158, 11, 0.15);
+        color: #f59e0b;
+    }
+
     .card-icon.key {
         background: rgba(59, 130, 246, 0.15);
         color: var(--accent-blue);
@@ -248,6 +253,212 @@
 
     .card-content {
         margin-top: 20px;
+    }
+
+    /* Category List Styles */
+    .category-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+    }
+
+    .category-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 16px;
+        background: rgba(0, 0, 0, 0.2);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        transition: all 0.2s;
+    }
+
+    .category-item:hover {
+        border-color: var(--accent-blue);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .category-item.loading {
+        opacity: 0.6;
+        pointer-events: none;
+    }
+
+    .category-info {
+        flex: 1;
+    }
+
+    .category-name {
+        font-size: 15px;
+        font-weight: 600;
+        margin-bottom: 4px;
+        color: var(--text-primary);
+    }
+
+    .category-desc {
+        font-size: 13px;
+        color: var(--text-secondary);
+        margin-bottom: 4px;
+    }
+
+    .category-updated {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: rgba(100, 116, 139, 0.4);
+        transition: 0.3s;
+        border-radius: 28px;
+    }
+
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 22px;
+        width: 22px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+        background: linear-gradient(135deg, var(--accent-green), #059669);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+
+    .toggle-switch input:disabled + .toggle-slider {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* Loading State */
+    .category-loading {
+        display: none;
+        width: 20px;
+        height: 20px;
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+        margin-left: 12px;
+    }
+
+    .category-item.loading .category-loading {
+        display: block;
+    }
+
+    .category-item.loading .toggle-switch {
+        opacity: 0.5;
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-badge.enabled {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+    }
+
+    .status-badge.disabled {
+        background: rgba(100, 116, 139, 0.15);
+        color: var(--text-muted);
+    }
+
+    /* Error/Warning Messages */
+    .category-error {
+        padding: 16px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 8px;
+        color: var(--accent-red);
+        font-size: 14px;
+        display: none;
+    }
+
+    .category-error.visible {
+        display: block;
+    }
+
+    /* Processing Overlay */
+    .processing-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.85);
+        display: none;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .processing-overlay.active {
+        display: flex;
+    }
+
+    .processing-spinner {
+        width: 50px;
+        height: 50px;
+        border: 4px solid rgba(255, 255, 255, 0.2);
+        border-top-color: var(--accent-cyan);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+    }
+
+    .processing-text {
+        font-size: 18px;
+        font-weight: 600;
+        color: white;
+    }
+
+    .processing-subtext {
+        font-size: 14px;
+        color: var(--text-muted);
+        text-align: center;
+        max-width: 400px;
     }
 
     .coming-soon {
@@ -287,7 +498,43 @@
     .hidden {
         display: none !important;
     }
+
+    /* Refresh Button */
+    .refresh-btn {
+        padding: 8px 16px;
+        background: rgba(59, 130, 246, 0.1);
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        border-radius: 6px;
+        color: var(--accent-blue);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .refresh-btn:hover {
+        background: rgba(59, 130, 246, 0.2);
+    }
+
+    .refresh-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .card-header-actions {
+        margin-left: auto;
+    }
 </style>
+
+<!-- Processing Overlay -->
+<div id="processingOverlay" class="processing-overlay">
+    <div class="processing-spinner"></div>
+    <div class="processing-text" id="processingText">Updating Category...</div>
+    <div class="processing-subtext" id="processingSubtext">Please wait while pfBlockerNG syncs the blocklist. This may take a moment.</div>
+</div>
 
 <div class="sidebar">
     <div class="sidebar-header">
@@ -349,7 +596,7 @@
     <div class="page-header">
         <div class="page-header-text">
             <h1 class="page-title">Security</h1>
-            <p class="page-subtitle">Manage firewall security settings and access control</p>
+            <p class="page-subtitle">Manage firewall security settings and content filtering</p>
         </div>
     </div>
 
@@ -361,6 +608,46 @@
     {{ end }}
 
     <div class="security-sections">
+        <!-- Category Filtering Section -->
+        <div class="security-card">
+            <div class="card-header">
+                <div class="card-icon filter">
+                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
+                        <path fill-rule="evenodd"
+                            d="M3 3a1 1 0 011-1h12a1 1 0 011 1v3a1 1 0 01-.293.707L12 11.414V15a1 1 0 01-.293.707l-2 2A1 1 0 018 17v-5.586L3.293 6.707A1 1 0 013 6V3z"
+                            clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div>
+                    <h3 class="card-title">Category Filtering</h3>
+                    <p class="card-description">Block unwanted content categories using DNS-based filtering (pfBlockerNG)</p>
+                </div>
+                <div class="card-header-actions">
+                    <button class="refresh-btn" id="refreshCategoriesBtn" onclick="loadCategories()">
+                        <svg width="14" height="14" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z"
+                                clip-rule="evenodd" />
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+            </div>
+            <div class="card-content">
+                <!-- Error Message -->
+                <div class="category-error" id="categoryError"></div>
+
+                <!-- Category List -->
+                <div class="category-list" id="categoryList">
+                    <!-- Categories will be loaded dynamically -->
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <div class="processing-spinner" style="margin: 0 auto 16px;"></div>
+                        Loading categories...
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <!-- Firewall Rules Section -->
         <div class="security-card">
             <div class="card-header">
@@ -420,38 +707,171 @@
                 </div>
             </div>
         </div>
-
-        <!-- Access Control Section -->
-        <div class="security-card">
-            <div class="card-header">
-                <div class="card-icon lock">
-                    <svg width="24" height="24" fill="currentColor" viewBox="0 0 20 20">
-                        <path fill-rule="evenodd"
-                            d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </div>
-                <div>
-                    <h3 class="card-title">Access Control</h3>
-                    <p class="card-description">Manage user accounts and access permissions</p>
-                </div>
-            </div>
-            <div class="card-content">
-                <div class="coming-soon">
-                    <div class="coming-soon-icon">
-                        <svg width="32" height="32" fill="white" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M18 8a6 6 0 01-7.743 5.743L10 14l-1 1-1 1H6v2H2v-4l4.257-4.257A6 6 0 1118 8zm-6-4a1 1 0 100 2 2 2 0 012 2 1 1 0 102 0 4 4 0 00-4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <div class="coming-soon-title">Coming Soon</div>
-                    <div class="coming-soon-text">User and access management will be available in a future update. For now, please use the pfSense WebGUI for user administration.</div>
-                </div>
-            </div>
-        </div>
     </div>
 </div>
+
+<script>
+    // Category display names
+    const categoryNames = {
+        'Vietnam_Filter': 'Vietnam Ads & Tracking',
+        'Fake_News': 'Fake News',
+        'Gambling': 'Gambling',
+        'Porn_Adult': 'Adult Content',
+        'Social_Media': 'Social Media',
+        'Malware_Phishing': 'Malware & Phishing',
+        'Crypto_Mining': 'Crypto Mining'
+    };
+
+    // Show processing overlay
+    function showProcessing(title, subtitle) {
+        document.getElementById('processingText').textContent = title || 'Processing...';
+        document.getElementById('processingSubtext').textContent = subtitle || 'Please wait...';
+        document.getElementById('processingOverlay').classList.add('active');
+    }
+
+    // Hide processing overlay
+    function hideProcessing() {
+        document.getElementById('processingOverlay').classList.remove('active');
+    }
+
+    // Show error message
+    function showError(message) {
+        const errorEl = document.getElementById('categoryError');
+        errorEl.textContent = message;
+        errorEl.classList.add('visible');
+    }
+
+    // Hide error message
+    function hideError() {
+        document.getElementById('categoryError').classList.remove('visible');
+    }
+
+    // Load categories from API
+    async function loadCategories() {
+        const listEl = document.getElementById('categoryList');
+        const refreshBtn = document.getElementById('refreshCategoriesBtn');
+
+        refreshBtn.disabled = true;
+        hideError();
+
+        try {
+            const response = await fetch('/api/security/categories');
+            const data = await response.json();
+
+            if (data.status === 'error') {
+                showError(data.message);
+                listEl.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                        <div style="font-size: 48px; margin-bottom: 16px;">&#9888;</div>
+                        <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">pfBlockerNG Not Available</div>
+                        <div style="font-size: 13px;">${data.message}</div>
+                    </div>
+                `;
+                return;
+            }
+
+            // Render categories
+            let html = '';
+            for (const [key, info] of Object.entries(data.categories)) {
+                const displayName = categoryNames[key] || key.replace(/_/g, ' ');
+                const statusClass = info.enabled ? 'enabled' : 'disabled';
+                const statusText = info.enabled ? 'Active' : 'Inactive';
+                const lastUpdated = info.last_updated === 'Never' ? 'Never synced' : `Last updated: ${info.last_updated}`;
+
+                html += `
+                    <div class="category-item" id="category-${key}">
+                        <div class="category-info">
+                            <div class="category-name">${displayName}</div>
+                            <div class="category-desc">${info.description}</div>
+                            <div class="category-updated">${lastUpdated}</div>
+                        </div>
+                        <div class="category-loading"></div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" ${info.enabled ? 'checked' : ''} onchange="toggleCategory('${key}', this.checked)">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                `;
+            }
+
+            listEl.innerHTML = html;
+
+        } catch (err) {
+            console.error('Failed to load categories:', err);
+            showError('Failed to load categories: ' + err.message);
+            listEl.innerHTML = `
+                <div style="text-align: center; padding: 40px; color: var(--text-muted);">
+                    <div style="font-size: 48px; margin-bottom: 16px;">&#9888;</div>
+                    <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">Connection Error</div>
+                    <div style="font-size: 13px;">Failed to connect to the server. Please try again.</div>
+                </div>
+            `;
+        } finally {
+            refreshBtn.disabled = false;
+        }
+    }
+
+    // Toggle category on/off
+    async function toggleCategory(category, enabled) {
+        const itemEl = document.getElementById('category-' + category);
+        const checkbox = itemEl.querySelector('input[type="checkbox"]');
+
+        // Show processing overlay
+        const action = enabled ? 'Enabling' : 'Disabling';
+        const displayName = categoryNames[category] || category.replace(/_/g, ' ');
+        showProcessing(
+            `${action} ${displayName}...`,
+            'Please wait while pfBlockerNG syncs the blocklist. This may take a moment.'
+        );
+
+        // Set loading state
+        itemEl.classList.add('loading');
+        checkbox.disabled = true;
+
+        try {
+            const response = await fetch('/api/security/categories', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    category: category,
+                    enabled: enabled
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.status === 'error') {
+                // Revert checkbox
+                checkbox.checked = !enabled;
+                showError(data.message);
+            } else {
+                hideError();
+                // Update the last updated time
+                const updatedEl = itemEl.querySelector('.category-updated');
+                if (updatedEl) {
+                    updatedEl.textContent = 'Just updated';
+                }
+            }
+
+        } catch (err) {
+            console.error('Failed to toggle category:', err);
+            // Revert checkbox
+            checkbox.checked = !enabled;
+            showError('Failed to update category: ' + err.message);
+        } finally {
+            itemEl.classList.remove('loading');
+            checkbox.disabled = false;
+            hideProcessing();
+        }
+    }
+
+    // Load categories on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        loadCategories();
+    });
+</script>
 {{ end }}
 
 {{ template "base" . }}

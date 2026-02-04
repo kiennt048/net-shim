@@ -721,6 +721,52 @@ func main() {
 		})
 	}))
 
+	// --- SECURITY CATEGORIES API ---
+	http.HandleFunc("/api/security/categories", auth.RequireLogin(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+
+		switch r.Method {
+		case http.MethodGet:
+			// Get all categories
+			response, err := pfsense.GetCategories()
+			if err != nil {
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":  "error",
+					"message": err.Error(),
+				})
+				return
+			}
+			json.NewEncoder(w).Encode(response)
+
+		case http.MethodPost:
+			// Set category state
+			var req struct {
+				Category string `json:"category"`
+				Enabled  bool   `json:"enabled"`
+			}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":  "error",
+					"message": "Invalid request format",
+				})
+				return
+			}
+
+			response, err := pfsense.SetCategory(req.Category, req.Enabled)
+			if err != nil {
+				json.NewEncoder(w).Encode(map[string]interface{}{
+					"status":  "error",
+					"message": err.Error(),
+				})
+				return
+			}
+			json.NewEncoder(w).Encode(response)
+
+		default:
+			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		}
+	}))
+
 	// --- BACKUP PAGE ---
 	http.HandleFunc("/backup", auth.RequireLogin(func(w http.ResponseWriter, r *http.Request) {
 		cookie, _ := r.Cookie("netshim_sess")
