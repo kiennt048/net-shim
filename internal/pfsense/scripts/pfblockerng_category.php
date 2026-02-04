@@ -207,33 +207,21 @@ function is_category_enabled($category_key) {
 }
 
 /**
- * Execute pfBlockerNG update synchronously
+ * Execute pfBlockerNG update in background (non-blocking)
  */
-function execute_pfblockerng_update() {
+function execute_pfblockerng_update_background() {
     if (!file_exists(PFBLOCKERNG_UPDATE_SCRIPT)) {
         return array('success' => false, 'message' => 'pfBlockerNG update script not found');
     }
 
-    // Run the update command and wait for completion
-    $cmd = '/usr/local/bin/php -q ' . escapeshellarg(PFBLOCKERNG_UPDATE_SCRIPT) . ' update 2>&1';
-
-    $output = array();
-    $return_code = 0;
-
-    exec($cmd, $output, $return_code);
-
-    // Also reload Unbound to apply DNSBL changes
-    if (function_exists('services_unbound_configure')) {
-        services_unbound_configure();
-    } else {
-        // Fallback to direct command
-        exec('/usr/local/sbin/unbound-control reload 2>&1');
-    }
+    // Run the update command in background (non-blocking)
+    // Using nohup and redirecting output to avoid blocking
+    $cmd = 'nohup /usr/local/bin/php -q ' . escapeshellarg(PFBLOCKERNG_UPDATE_SCRIPT) . ' update > /dev/null 2>&1 &';
+    exec($cmd);
 
     return array(
-        'success' => ($return_code === 0),
-        'message' => implode("\n", array_slice($output, -5)), // Last 5 lines
-        'return_code' => $return_code
+        'success' => true,
+        'message' => 'Update started in background'
     );
 }
 
@@ -332,22 +320,13 @@ function action_set($category_key, $state) {
 
     syslog(LOG_INFO, "NetShim: pfBlockerNG category $category_key $action_msg");
 
-    // Execute pfBlockerNG update synchronously
-    $update_result = execute_pfblockerng_update();
-
-    if (!$update_result['success']) {
-        json_response(array(
-            'status'   => 'warning',
-            'message'  => "Category $action_msg but pfBlockerNG update had issues",
-            'category' => $category_key,
-            'enabled'  => ($state === 'on'),
-            'update_details' => $update_result['message']
-        ));
-    }
+    // Execute pfBlockerNG update in background (non-blocking)
+    // This allows the UI to respond quickly while the update runs
+    execute_pfblockerng_update_background();
 
     json_response(array(
         'status'   => 'success',
-        'message'  => "Category $category_key $action_msg and sync completed",
+        'message'  => "Category $category_key $action_msg. pfBlockerNG sync started in background.",
         'category' => $category_key,
         'enabled'  => ($state === 'on')
     ));

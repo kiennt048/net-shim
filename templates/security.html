@@ -816,15 +816,7 @@
         const itemEl = document.getElementById('category-' + category);
         const checkbox = itemEl.querySelector('input[type="checkbox"]');
 
-        // Show processing overlay
-        const action = enabled ? 'Enabling' : 'Disabling';
-        const displayName = categoryNames[category] || category.replace(/_/g, ' ');
-        showProcessing(
-            `${action} ${displayName}...`,
-            'Please wait while pfBlockerNG syncs the blocklist. This may take a moment.'
-        );
-
-        // Set loading state
+        // Set loading state on the item only (no full-screen overlay)
         itemEl.classList.add('loading');
         checkbox.disabled = true;
 
@@ -848,10 +840,14 @@
                 showError(data.message);
             } else {
                 hideError();
-                // Update the last updated time
+                // Update the status text
                 const updatedEl = itemEl.querySelector('.category-updated');
                 if (updatedEl) {
-                    updatedEl.textContent = 'Just updated';
+                    updatedEl.textContent = 'Syncing in background...';
+                    // Reset after 10 seconds
+                    setTimeout(() => {
+                        updatedEl.textContent = enabled ? 'Enabled - sync in progress' : 'Disabled';
+                    }, 3000);
                 }
             }
 
@@ -863,7 +859,6 @@
         } finally {
             itemEl.classList.remove('loading');
             checkbox.disabled = false;
-            hideProcessing();
         }
     }
 
