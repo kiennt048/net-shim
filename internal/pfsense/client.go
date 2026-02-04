@@ -38,8 +38,15 @@ var errorMessages = map[string]string{
 	"WRITE_FAILED":              "Failed to write configuration file",
 	"WRITE_VERIFICATION_FAILED": "Configuration file verification failed after write",
 	"PARSE_FAILED":              "Failed to parse new configuration",
-	"NO_DEFAULT_CONFIG":         "Default configuration not provided",
-	"INVALID_DEFAULT_CONFIG":    "Invalid default configuration format",
+	"NO_DEFAULT_CONFIG":            "Default configuration not provided",
+	"INVALID_DEFAULT_CONFIG":       "Invalid default configuration format",
+	"PFBLOCKERNG_NOT_INSTALLED":    "pfBlockerNG-devel is not installed or DNSBL is not configured",
+	"INVALID_CATEGORY":             "Unknown filtering category specified",
+	"INVALID_STATE":                "Invalid state (must be 'on' or 'off')",
+	"MISSING_CATEGORY":             "Category name is required",
+	"MISSING_STATE":                "State (on/off) is required",
+	"NO_ACTION":                    "No action specified",
+	"INVALID_ACTION":               "Invalid action (must be 'set' or 'get')",
 }
 
 // translatePhpError converts PHP error codes to human-readable messages
@@ -359,6 +366,96 @@ func ShutdownSystem() error {
 		return fmt.Errorf("shutdown failed: %s", output)
 	}
 	return nil
+}
+
+// ===================================================================
+// PFBLOCKERNG CATEGORY API FUNCTIONS
+// ===================================================================
+
+// CategoryStatus represents the status of a single filtering category
+type CategoryStatus struct {
+	Enabled     bool   `json:"enabled"`
+	LastUpdated string `json:"last_updated"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
+}
+
+// CategoryResponse represents the response from category operations
+type CategoryResponse struct {
+	Status     string                    `json:"status"`
+	Message    string                    `json:"message"`
+	Code       string                    `json:"code,omitempty"`
+	Category   string                    `json:"category,omitempty"`
+	Enabled    bool                      `json:"enabled,omitempty"`
+	Categories map[string]CategoryStatus `json:"categories,omitempty"`
+}
+
+// CategorySetRequest represents a request to set a category state
+type CategorySetRequest struct {
+	Action   string `json:"action"`
+	Category string `json:"category"`
+	State    string `json:"state"`
+}
+
+// GetCategories fetches the status of all pfBlockerNG filtering categories
+func GetCategories() (*CategoryResponse, error) {
+	payload, _ := json.Marshal(map[string]string{
+		"action": "get",
+	})
+
+	output, err := runPhpRaw(PhpPfBlockerNGCategoryScript, map[string]string{
+		"NETSHIM_PAYLOAD": string(payload),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("PHP execution failed: %v", err)
+	}
+
+	// Parse JSON response
+	var response CategoryResponse
+	if err := json.Unmarshal([]byte(output), &response); err != nil {
+		return nil, fmt.Errorf("JSON parse error: %v | Output: %s", err, output)
+	}
+
+	// Check for error status
+	if response.Status == "error" {
+		return &response, fmt.Errorf("%s", response.Message)
+	}
+
+	return &response, nil
+}
+
+// SetCategory enables or disables a pfBlockerNG filtering category
+func SetCategory(category string, enabled bool) (*CategoryResponse, error) {
+	state := "off"
+	if enabled {
+		state = "on"
+	}
+
+	payload, _ := json.Marshal(CategorySetRequest{
+		Action:   "set",
+		Category: category,
+		State:    state,
+	})
+
+	output, err := runPhpRaw(PhpPfBlockerNGCategoryScript, map[string]string{
+		"NETSHIM_PAYLOAD": string(payload),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("PHP execution failed: %v", err)
+	}
+
+	// Parse JSON response
+	var response CategoryResponse
+	if err := json.Unmarshal([]byte(output), &response); err != nil {
+		return nil, fmt.Errorf("JSON parse error: %v | Output: %s", err, output)
+	}
+
+	// Check for error status
+	if response.Status == "error" {
+		return &response, fmt.Errorf("%s", response.Message)
+	}
+
+	return &response, nil
 }
 
 // ===================================================================

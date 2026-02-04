@@ -33,3 +33,6 @@ var PhpRebootScript string
 
 //go:embed scripts/shutdown.php
 var PhpShutdownScript string
+
+//go:embed scripts/pfblockerng_category.php
+var PhpPfBlockerNGCategoryScript string
