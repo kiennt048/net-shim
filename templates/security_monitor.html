@@ -1,0 +1,509 @@
+{{ define "content" }}
+<style>
+    .sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 240px;
+        background: var(--bg-secondary);
+        border-right: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        z-index: 100;
+    }
+
+    .sidebar-header {
+        padding: 20px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .logo {
+        font-size: 32px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-align: center;
+        line-height: 1;
+    }
+
+    .logo-beyond {
+        color: #FF6B35;
+    }
+
+    .logo-net {
+        color: #06B6D4;
+    }
+
+    .logo-subtitle {
+        font-size: 10px;
+        color: var(--text-muted);
+        text-transform: uppercase;
+        letter-spacing: 1.5px;
+        text-align: center;
+        margin-top: 8px;
+    }
+
+    .nav-menu {
+        flex: 1;
+        padding: 20px 0;
+        overflow-y: auto;
+    }
+
+    .nav-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        color: var(--text-secondary);
+        text-decoration: none;
+        transition: all 0.2s;
+        cursor: pointer;
+        border-left: 3px solid transparent;
+        font-size: 14px;
+        font-weight: 500;
+    }
+
+    .nav-item:hover {
+        background: var(--bg-hover);
+        color: var(--text-primary);
+    }
+
+    .nav-item.active {
+        background: var(--bg-hover);
+        color: var(--accent-cyan);
+        border-left-color: var(--accent-cyan);
+    }
+
+    .nav-icon {
+        width: 20px;
+        height: 20px;
+        margin-right: 12px;
+        opacity: 0.7;
+    }
+
+    .nav-item.active .nav-icon {
+        opacity: 1;
+    }
+
+    .sidebar-footer {
+        padding: 20px;
+        border-top: 1px solid var(--border);
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.03);
+        border-radius: 8px;
+        margin-bottom: 12px;
+    }
+
+    .user-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent-blue), var(--accent-cyan));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 14px;
+        color: white;
+        text-transform: uppercase;
+    }
+
+    .user-details {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .user-name {
+        font-size: 13px;
+        font-weight: 600;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .user-role {
+        font-size: 11px;
+        color: var(--text-muted);
+    }
+
+    .logout-btn {
+        width: 100%;
+        padding: 10px;
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        border-radius: 6px;
+        color: var(--accent-red);
+        font-size: 13px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+    }
+
+    .logout-btn:hover {
+        background: rgba(239, 68, 68, 0.2);
+    }
+
+    .main-content {
+        margin-left: 240px;
+        min-height: 100vh;
+        padding: 30px 40px 60px;
+    }
+
+    .page-header {
+        margin-bottom: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .page-title {
+        font-size: 28px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+
+    .page-subtitle {
+        font-size: 14px;
+        color: var(--text-muted);
+    }
+
+    .status-row {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        flex-wrap: wrap;
+        margin-bottom: 20px;
+    }
+
+    .status-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 12px;
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--border);
+        font-size: 12px;
+        color: var(--text-secondary);
+    }
+
+    .status-pill.ok {
+        color: var(--accent-green);
+        border-color: rgba(16, 185, 129, 0.3);
+    }
+
+    .status-pill.warn {
+        color: #f59e0b;
+        border-color: rgba(245, 158, 11, 0.35);
+    }
+
+    .filters {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+    }
+
+    .filters form {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .btn-inline {
+        padding: 8px 14px;
+        background: rgba(6, 182, 212, 0.1);
+        border: 1px solid rgba(6, 182, 212, 0.4);
+        border-radius: 6px;
+        color: var(--accent-cyan);
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+
+    .btn-inline:hover {
+        background: rgba(6, 182, 212, 0.2);
+    }
+
+    .monitor-table {
+        width: 100%;
+        border-collapse: collapse;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .monitor-table thead {
+        background: rgba(255, 255, 255, 0.03);
+    }
+
+    .monitor-table th,
+    .monitor-table td {
+        padding: 14px 16px;
+        text-align: left;
+        font-size: 13px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .monitor-table th {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.6px;
+        color: var(--text-muted);
+    }
+
+    .monitor-table tbody tr:hover {
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    .monitor-table td.domain {
+        font-weight: 600;
+        color: var(--text-primary);
+    }
+
+    .tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        border: 1px solid transparent;
+    }
+
+    .tag.allowed {
+        background: rgba(16, 185, 129, 0.15);
+        color: var(--accent-green);
+        border-color: rgba(16, 185, 129, 0.35);
+    }
+
+    .tag.blocked {
+        background: rgba(239, 68, 68, 0.15);
+        color: var(--accent-red);
+        border-color: rgba(239, 68, 68, 0.35);
+    }
+
+    .reason {
+        color: var(--text-muted);
+        font-size: 11px;
+        margin-top: 4px;
+    }
+
+    .empty-state {
+        padding: 40px;
+        text-align: center;
+        color: var(--text-muted);
+        border: 1px dashed var(--border);
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.02);
+    }
+
+    @media (max-width: 920px) {
+        .main-content {
+            margin-left: 0;
+            padding: 24px;
+        }
+
+        .sidebar {
+            position: relative;
+            width: 100%;
+            height: auto;
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-wrap: wrap;
+            padding: 10px;
+        }
+
+        .nav-item {
+            border-left: none;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-item.active {
+            border-left: none;
+            border-bottom-color: var(--accent-cyan);
+        }
+
+        .sidebar-footer {
+            width: 100%;
+        }
+
+        .monitor-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+</style>
+
+<div class="sidebar">
+    <div class="sidebar-header">
+        <div class="logo">
+            <span class="logo-beyond">BEYOND</span><span class="logo-net">NET</span>
+        </div>
+        <div class="logo-subtitle">Firewall Control</div>
+    </div>
+    <nav class="nav-menu">
+        <a href="/" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M10 3.5a1.5 1.5 0 013 0V4a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-.5a1.5 1.5 0 000 3h.5a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-.5a1.5 1.5 0 00-3 0v.5a1 1 0 01-1 1H6a1 1 0 01-1-1v-3a1 1 0 00-1-1h-.5a1.5 1.5 0 010-3H4a1 1 0 001-1V6a1 1 0 011-1h3a1 1 0 001-1v-.5z" />
+            </svg>
+            <span>Network</span>
+        </a>
+        <a href="/monitor" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M3 4a1 1 0 011-1h12a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4zM3 10a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H4a1 1 0 01-1-1v-6zM14 9a1 1 0 00-1 1v6a1 1 0 001 1h2a1 1 0 001-1v-6a1 1 0 00-1-1h-2z" />
+            </svg>
+            <span>Monitor</span>
+        </a>
+        <a href="/security" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M10 2a1 1 0 01.832.445l5 7A1 1 0 0115 11h-1v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4H5a1 1 0 01-.832-1.555l5-7A1 1 0 0110 2zm0 3.236L7.118 9H8a1 1 0 011 1v5h2v-5a1 1 0 011-1h.882L10 5.236z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span>Security</span>
+        </a>
+        <a href="/security/monitor" class="nav-item active">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path
+                    d="M2 11a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1H3a1 1 0 01-1-1v-6zm6-6a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1H9a1 1 0 01-1-1V5zm6 3a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1h-2a1 1 0 01-1-1V8z" />
+            </svg>
+            <span>Security Monitor</span>
+        </a>
+        <a href="/backup" class="nav-item">
+            <svg class="nav-icon" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4zm2 6a1 1 0 011-1h6a1 1 0 110 2H7a1 1 0 01-1-1zm1 3a1 1 0 100 2h6a1 1 0 100-2H7z"
+                    clip-rule="evenodd" />
+            </svg>
+            <span>Backup/Reset</span>
+        </a>
+    </nav>
+    <div class="sidebar-footer">
+        <div class="user-info">
+            <div class="user-avatar">{{ if .Username }}{{ printf "%.1s" .Username | upper }}{{ else }}A{{ end }}</div>
+            <div class="user-details">
+                <div class="user-name">{{ if .Username }}{{ .Username }}{{ else }}Admin{{ end }}</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+        <a href="/logout" class="logout-btn">
+            <svg width="16" height="16" fill="currentColor" viewBox="0 0 20 20">
+                <path fill-rule="evenodd"
+                    d="M3 3a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V4a1 1 0 00-1-1H3zm11 4.414l-4.293 4.293a1 1 0 01-1.414 0L4 7.414V13h10V7.414zM4 6l4.5 4.5L13 6H4z"
+                    clip-rule="evenodd" />
+            </svg>
+            Sign Out
+        </a>
+    </div>
+</div>
+
+<div class="main-content">
+    <div class="page-header">
+        <div>
+            <h1 class="page-title">Security Monitor</h1>
+            <p class="page-subtitle">Latest DNS activity from AdGuard Home (base domain + category).</p>
+        </div>
+        <div class="status-row">
+            <div class="status-pill {{ if .SecurityMonitor.AdGuardOnline }}ok{{ else }}warn{{ end }}">
+                {{ if .SecurityMonitor.AdGuardOnline }}AdGuard Online{{ else }}AdGuard Offline{{ end }}
+            </div>
+            <div class="status-pill">Last Updated: {{ .SecurityMonitor.LastUpdated }}</div>
+        </div>
+    </div>
+
+    {{ if .LastMsg }}
+    <div class="alert {{ if .IsError }}alert-error{{ else }}alert-success{{ end }}">
+        {{ .LastMsg }}
+    </div>
+    {{ end }}
+
+    {{ if .SecurityMonitor.AdGuardError }}
+    <div class="alert alert-error">
+        {{ .SecurityMonitor.AdGuardError }}
+    </div>
+    {{ end }}
+
+    <div class="filters">
+        <form method="GET" action="/security/monitor">
+            <label style="margin-bottom:0;">Show last</label>
+            <select name="limit" style="width:120px;">
+                <option value="50" {{ if eq .SecurityMonitor.Limit 50 }}selected{{ end }}>50</option>
+                <option value="100" {{ if eq .SecurityMonitor.Limit 100 }}selected{{ end }}>100</option>
+                <option value="200" {{ if eq .SecurityMonitor.Limit 200 }}selected{{ end }}>200</option>
+                <option value="500" {{ if eq .SecurityMonitor.Limit 500 }}selected{{ end }}>500</option>
+                <option value="1000" {{ if eq .SecurityMonitor.Limit 1000 }}selected{{ end }}>1000</option>
+            </select>
+            <button class="btn-inline" type="submit">Apply</button>
+        </form>
+        <a class="btn-inline" href="/security/monitor?limit={{ .SecurityMonitor.Limit }}">Refresh</a>
+    </div>
+
+    {{ if .SecurityMonitor.Entries }}
+    <table class="monitor-table">
+        <thead>
+            <tr>
+                <th>Time</th>
+                <th>Source IP</th>
+                <th>Domain</th>
+                <th>Category</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{ range .SecurityMonitor.Entries }}
+            <tr>
+                <td>{{ if .Time }}{{ .Time }}{{ else }}-{{ end }}</td>
+                <td>{{ if .SourceIP }}{{ .SourceIP }}{{ else }}-{{ end }}</td>
+                <td class="domain">{{ .Domain }}</td>
+                <td>
+                    {{ if .Category }}{{ .Category }}{{ else }}-{{ end }}
+                    {{ if .Reason }}<div class="reason">{{ .Reason }}</div>{{ end }}
+                </td>
+                <td>
+                    <span class="tag {{ if eq .Action "Blocked" }}blocked{{ else }}allowed{{ end }}">{{ .Action }}</span>
+                </td>
+            </tr>
+            {{ end }}
+        </tbody>
+    </table>
+    {{ else }}
+    <div class="empty-state">No DNS activity yet. Generate traffic or verify AdGuard Home query logging.</div>
+    {{ end }}
+</div>
+
+<script>
+    const refreshMs = 20000;
+    setInterval(() => {
+        if (!document.hidden) {
+            window.location.reload();
+        }
+    }, refreshMs);
+</script>
+{{ end }}

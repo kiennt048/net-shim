@@ -1,0 +1,435 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Security · Web Filtering (Mockup)</title>
+  <style>
+    :root {
+      --bg-1: #0f172a;
+      --bg-2: #0b1220;
+      --panel: #0b1020;
+      --panel-2: #0f162d;
+      --ink: #e6edf6;
+      --ink-muted: #9fb1c9;
+      --brand: #3ddc97;
+      --accent: #60a5fa;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --outline: #1f2a44;
+      --chip: #111a33;
+      --shadow: 0 20px 50px rgba(0,0,0,0.35);
+      --radius: 16px;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: radial-gradient(1200px 500px at 10% -10%, rgba(96,165,250,0.25), transparent 60%),
+                  radial-gradient(900px 600px at 90% -20%, rgba(61,220,151,0.2), transparent 55%),
+                  linear-gradient(180deg, var(--bg-1), var(--bg-2));
+      font-family: "Space Grotesk", "Sora", "IBM Plex Sans", sans-serif;
+      letter-spacing: 0.2px;
+    }
+
+    .page {
+      max-width: 1160px;
+      margin: 32px auto 64px;
+      padding: 0 20px;
+    }
+
+    .hero {
+      display: grid;
+      gap: 16px;
+      background: linear-gradient(135deg, rgba(96,165,250,0.18), rgba(61,220,151,0.18));
+      border: 1px solid rgba(96,165,250,0.25);
+      border-radius: var(--radius);
+      padding: 20px 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+      background-size: 18px 18px;
+      opacity: 0.4;
+      pointer-events: none;
+    }
+
+    .hero h1 {
+      margin: 0;
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .hero .crumbs {
+      color: var(--ink-muted);
+      font-size: 13px;
+    }
+
+    .status-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: center;
+      z-index: 1;
+    }
+
+    .status-pill {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .pill {
+      background: rgba(15, 22, 45, 0.8);
+      border: 1px solid var(--outline);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      color: var(--ink-muted);
+    }
+
+    .pill strong { color: var(--ink); }
+    .pill .ok { color: var(--brand); font-weight: 600; }
+
+    .btn {
+      border: 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      color: #081016;
+      background: linear-gradient(135deg, var(--brand), #8bffd3);
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .grid {
+      margin-top: 24px;
+      display: grid;
+      gap: 20px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--outline);
+      border-radius: var(--radius);
+      padding: 20px;
+      box-shadow: var(--shadow);
+    }
+
+    .card h2 {
+      margin: 0 0 12px;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .card p {
+      margin: 0 0 16px;
+      color: var(--ink-muted);
+      font-size: 13px;
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 12px;
+    }
+
+    .category {
+      background: var(--panel-2);
+      border: 1px solid var(--outline);
+      border-radius: 14px;
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .category .title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+    }
+
+    .tag {
+      font-size: 11px;
+      background: var(--chip);
+      padding: 4px 8px;
+      border-radius: 999px;
+      color: var(--ink-muted);
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+      background: #24304d;
+      border-radius: 999px;
+      border: 1px solid var(--outline);
+    }
+
+    .switch::after {
+      content: "";
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #cbd5e1;
+      transition: transform 0.25s ease;
+    }
+
+    .switch.on {
+      background: rgba(61,220,151,0.25);
+      border-color: rgba(61,220,151,0.5);
+    }
+
+    .switch.on::after {
+      background: var(--brand);
+      transform: translateX(20px);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+
+    .btn-outline {
+      border: 1px solid var(--outline);
+      background: transparent;
+      color: var(--ink);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 16px;
+    }
+
+    .textarea {
+      background: #0b142b;
+      border: 1px dashed #2c3a5c;
+      border-radius: 12px;
+      padding: 12px;
+      min-height: 120px;
+      color: var(--ink-muted);
+      font-family: "JetBrains Mono", "Fira Code", monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      white-space: pre-line;
+    }
+
+    .list {
+      display: grid;
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--outline);
+      background: #0b1327;
+      font-size: 13px;
+    }
+
+    .row .remove {
+      color: var(--danger);
+      font-size: 12px;
+    }
+
+    .search {
+      background: #0b1327;
+      border: 1px solid var(--outline);
+      border-radius: 10px;
+      padding: 10px 12px;
+      color: var(--ink-muted);
+      font-size: 12px;
+      width: 100%;
+    }
+
+    .global-controls {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+    }
+
+    .control {
+      padding: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--outline);
+      background: #0b1327;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .control .label {
+      font-size: 13px;
+      color: var(--ink-muted);
+    }
+
+    .hint {
+      font-size: 12px;
+      color: var(--warning);
+      margin-top: 10px;
+    }
+
+    @media (max-width: 900px) {
+      .status-row {
+        grid-template-columns: 1fr;
+      }
+      .split {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="crumbs">Security ▸ Web Filtering</div>
+      <h1>Web Filtering</h1>
+      <div class="status-row">
+        <div class="status-pill">
+          <div class="pill">AdGuard: <span class="ok">ONLINE</span></div>
+          <div class="pill">DNS Forcing: <strong>ON</strong></div>
+          <div class="pill">Last Health Check: <strong>10s ago</strong></div>
+        </div>
+        <button class="btn">Check Now</button>
+      </div>
+    </section>
+
+    <div class="grid">
+      <section class="card">
+        <h2>Categories</h2>
+        <p>Toggle policy bundles mapped to filter lists. Recommended for SMB defaults.</p>
+        <div class="category-grid">
+          <div class="category">
+            <div class="title">Malware & Phishing <span class="switch on"></span></div>
+            <span class="tag">Recommended</span>
+          </div>
+          <div class="category">
+            <div class="title">Ads & Trackers <span class="switch on"></span></div>
+            <span class="tag">Recommended</span>
+          </div>
+          <div class="category">
+            <div class="title">Adult Content <span class="switch"></span></div>
+            <span class="tag">Optional</span>
+          </div>
+          <div class="category">
+            <div class="title">Social Media <span class="switch on"></span></div>
+            <span class="tag">Business Hours</span>
+          </div>
+          <div class="category">
+            <div class="title">Streaming Media <span class="switch"></span></div>
+            <span class="tag">Optional</span>
+          </div>
+          <div class="category">
+            <div class="title">P2P / File Sharing <span class="switch"></span></div>
+            <span class="tag">Security</span>
+          </div>
+          <div class="category">
+            <div class="title">Gambling <span class="switch"></span></div>
+            <span class="tag">Policy</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="btn-outline">Enable Recommended</button>
+          <button class="btn-outline">Disable All</button>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Manual Blocks</h2>
+        <p>Add domains to block immediately. One per line, supports bulk paste.</p>
+        <div class="split">
+          <div>
+            <div class="textarea">example.com
+ads.badcdn.io
+badsite.net</div>
+            <div class="actions">
+              <button class="btn-outline">Add</button>
+              <button class="btn-outline">Import List</button>
+              <button class="btn-outline">Export List</button>
+            </div>
+          </div>
+          <div>
+            <input class="search" value="Search blocked domains" />
+            <div class="list">
+              <div class="row"><span>example.com</span><span class="remove">Remove</span></div>
+              <div class="row"><span>ads.badcdn.io</span><span class="remove">Remove</span></div>
+              <div class="row"><span>badsite.net</span><span class="remove">Remove</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Allowlist (Exceptions)</h2>
+        <p>Permit specific domains even if they appear in active categories.</p>
+        <div class="split">
+          <div>
+            <div class="textarea">payroll.company.com
+schoolportal.edu</div>
+            <div class="actions">
+              <button class="btn-outline">Add</button>
+              <button class="btn-outline">Import List</button>
+            </div>
+          </div>
+          <div>
+            <input class="search" value="Search allowlist" />
+            <div class="list">
+              <div class="row"><span>payroll.company.com</span><span class="remove">Remove</span></div>
+              <div class="row"><span>schoolportal.edu</span><span class="remove">Remove</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>Global Controls</h2>
+        <div class="global-controls">
+          <div class="control">
+            <div>
+              <div class="label">DNS Forcing (LAN Redirect)</div>
+              <div>On</div>
+            </div>
+            <span class="switch on"></span>
+          </div>
+          <div class="control">
+            <div>
+              <div class="label">Auto-disable if unhealthy</div>
+              <div>Enabled</div>
+            </div>
+            <span class="switch on"></span>
+          </div>
+          <div class="control">
+            <div>
+              <div class="label">Advanced Settings</div>
+              <div>Upstream DNS · Ports · API Token</div>
+            </div>
+            <button class="btn-outline">Open</button>
+          </div>
+        </div>
+        <div class="hint">Note: DoH/DoT can bypass DNS filtering unless blocked separately.</div>
+      </section>
+    </div>
+  </div>
+</body>
+</html>
